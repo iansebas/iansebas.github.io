@@ -69,9 +69,18 @@ export default function BackgroundManager() {
     preloadBackgroundImages();
   }, []);
   
+  // Ensure we always have background images for the current path
+  const getCurrentBackgroundImages = () => {
+    if (pathname && pathname in pathToBackground) {
+      return pathToBackground[pathname as keyof typeof pathToBackground];
+    }
+    return ['/images/backgrounds/bg0.png', '/images/backgrounds/bg1.png'];
+  };
+
   return (
     <div className="fixed inset-0 -z-20">
-      <div className="absolute inset-0 bg-gradient-to-br from-black to-gray-900"></div>
+      {/* Fallback gradient background with pastel rose-pink tones */}
+      <div className="absolute inset-0 bg-gradient-to-br from-rose-200 via-pink-200 to-white"></div>
       <AnimatePresence mode="wait">
         {pathname && (
           <motion.div
@@ -83,7 +92,7 @@ export default function BackgroundManager() {
             className="absolute inset-0"
           >
             <RandomBackground 
-              images={pathToBackground[pathname as keyof typeof pathToBackground] || ['/images/backgrounds/bg0.png']} 
+              images={getCurrentBackgroundImages()} 
               key={pathname} // Add key to force remount when pathname changes
             />
           </motion.div>

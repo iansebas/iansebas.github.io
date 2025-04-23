@@ -95,11 +95,26 @@ const RandomBackground = ({ images }: RandomBackgroundProps) => {
     };
   }, [loaded, images]);
 
-  // Static background while initial load happens
+  // Handle background rendering based on state
   if (!loaded || !backgroundImage) {
-    return <div className="absolute inset-0 bg-gradient-to-br from-black to-gray-900" />;
+    // If we have a preloaded image, show it during initial load
+    if (preloadedImages.current.length > 0) {
+      return (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+          style={{ 
+            backgroundImage: `url(${preloadedImages.current[0]})`,
+            backgroundPosition: 'center center',
+            backgroundSize: 'cover'
+          }}
+        />
+      );
+    }
+    // Pastel egg-rose-pink-white gradient as fallback if no images available
+    return <div className="absolute inset-0 bg-gradient-to-br from-rose-200 via-pink-200 to-white" />;
   }
 
+  // Main background with loaded image
   return (
     <motion.div
       key={backgroundImage}

@@ -6,20 +6,28 @@ import { motion } from 'framer-motion';
 export default function Work() {
   const workItems = [
     {
-      title: "Computer Vision @ Niantic Labs (Acquired by Scopely)",
-      description: "For half a decade, I led the productization of cutting-edge research by gaining in-depth technical expertise, expanding the technology, integrating it with real use cases in mind, and planning a roadmap for its technical improvement based on cross-collaboration with product, UX, and research. My work successfully launched **Augmented Reality** features in **Pokémon Go** for millions of users, multiple third-party games through our **AR SDK**, and various **spatial computing** enterprise projects."
+      company: "Niantic Labs",
+      role: "Computer Vision",
+      acquisition: "Acquired by Scopely",
+      description: "For half a decade, I led the productization of cutting-edge research by gaining in-depth technical expertise, expanding the technology, integrating it with real use cases in mind, and planning a roadmap for its technical improvement based on cross-collaboration with product, UX, and research. My work successfully launched augmented reality features in Pokémon Go for millions of users, multiple third-party games through our AR SDK, and various spatial computing enterprise projects."
     },
     {
-      title: "Computer Vision @ 6D.AI (Acquired by Niantic Labs)",
-      description: "As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with **Oxford University's Active Vision Lab** to create one of the world's first SDKs for **real-time 3D reconstruction** and **Persistent Augmented Reality**."
+      company: "6D.AI",
+      role: "Computer Vision",
+      acquisition: "Acquired by Niantic Labs",
+      description: "As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with Oxford University's Active Vision Lab to create one of the world's first SDKs for real-time 3D reconstruction and Persistent Augmented Reality."
     },
     {
-      title: "Research Engineering @ Civil Maps (Acquired by Luminar)",
-      description: "As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with Oxford University's Active Vision Lab to create one of the world's first SDKs for **real-time 3D reconstruction** and **Persistent Augmented Reality**."
+      company: "Civil Maps",
+      role: "Research Engineering",
+      acquisition: "Acquired by Luminar",
+      description: "I started my career in the Self-Driving Car industry, creating city-scale, high-accuracy 3D Maps for autonomous vehicles"
     },
     {
-      title: "Limited Partner @ Magic Fund",
-      description: "Honored to witness the next rise of the new generation of **innovators**."
+      company: "Magic Fund",
+      role: "Limited Partner",
+      acquisition: "",
+      description: "Honored to witness the next rise of the new generation of innovators"
     }
   ];
 
@@ -28,9 +36,7 @@ export default function Work() {
   const [startY, setStartY] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
 
-  const formatDescription = (text: string) => {
-    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  };
+  // No longer needed since we're not using markdown in the descriptions
 
   // Handle mouse/touch events for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -85,6 +91,46 @@ export default function Work() {
     };
   }, []);
 
+  // Function to format title into parts
+  const formatTitle = (title: string) => {
+    // For Niantic
+    if (title.includes('Niantic Labs')) {
+      const company = 'Niantic';
+      const role = 'Computer Vision';
+      const acquisition = 'Acquired by Scopely';
+      return { company, role, acquisition };
+    }
+    // For 6D.AI
+    else if (title.includes('6D.AI')) {
+      const company = '6D.AI';
+      const role = 'Computer Vision';
+      const acquisition = 'Acquired by Niantic Labs';
+      return { company, role, acquisition };
+    }
+    // For Civil Maps
+    else if (title.includes('Civil Maps')) {
+      const company = 'Civil Maps';
+      const role = 'Research Engineering';
+      const acquisition = 'Acquired by Luminar';
+      return { company, role, acquisition };
+    }
+    // For Magic Fund
+    else if (title.includes('Magic Fund')) {
+      const company = 'Magic Fund';
+      const role = 'Limited Partner';
+      const acquisition = '';
+      return { company, role, acquisition };
+    }
+    // Default fallback
+    else {
+      return { 
+        company: title.split('@')[1]?.trim() || title,
+        role: title.split('@')[0]?.trim() || '',
+        acquisition: ''
+      };
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div 
@@ -106,11 +152,14 @@ export default function Work() {
             key={index}
             className="work-card glass-card max-w-3xl mx-auto mb-10 last:mb-0 opacity-70 hover:opacity-100 transition-opacity"
           >
-            <h2 className="text-xl font-medium text-white text-shadow mb-4">{item.title}</h2>
-            <p 
-              className="text-white/90 text-shadow" 
-              dangerouslySetInnerHTML={{ __html: formatDescription(item.description) }}
-            />
+            <div className="mb-6">
+              <h2 className="text-4xl font-bold text-white text-shadow mb-1">{item.company}</h2>
+              <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
+              {item.acquisition && (
+                <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+              )}
+            </div>
+            <p className="text-base text-white/90 text-shadow leading-relaxed">{item.description}</p>
           </div>
         ))}
       </div>

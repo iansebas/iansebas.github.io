@@ -118,7 +118,7 @@ const Sidebar = () => {
             
             <h1 className="text-2xl font-bold text-white text-center text-shadow">ian rios</h1>
             
-            <div className="h-6 relative overflow-hidden">
+            <div className="h-7 relative overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.p 
                   key={titleIndex}
@@ -127,7 +127,7 @@ const Sidebar = () => {
                   exit={{ y: -20, opacity: 0 }}
                   transition={{ duration: 0.3 }}
                   className={classNames(
-                    "text-sm text-white/90 mt-1 text-center text-shadow absolute w-full",
+                    "text-md font-medium text-white/90 mt-1 text-center text-shadow absolute w-full",
                     isChanging ? "blur-sm" : ""
                   )}
                 >
@@ -176,8 +176,8 @@ const Sidebar = () => {
             </ul>
           </nav>
           
-          <div className="mt-auto">
-            <p className="text-sm text-white/70 text-shadow text-center">© {new Date().getFullYear()} Ian Rios</p>
+          <div className="mt-auto w-full flex justify-end">
+            <p className="text-sm text-white/70 text-shadow">© {new Date().getFullYear()} Ian Rios</p>
           </div>
         </div>
       </div>

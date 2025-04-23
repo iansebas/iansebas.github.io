@@ -32,58 +32,36 @@ const RandomHeadshot = ({ size = 128 }: { size?: number }) => {
 
 export default function Contact() {
   return (
-    <Section title="let's connect">
-      <div className="flex flex-col items-center text-center">
-        <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-white/50 shadow-lg mb-8">
-          <RandomHeadshot size={128} />
-        </div>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex justify-center gap-28 w-full max-w-6xl">
+        {/* Resume Link */}
+        <a 
+          href="/resume_ian_rios.pdf" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-all duration-300 hover:transform hover:scale-110"
+        >
+          <h2 className="text-6xl font-bold text-white text-shadow tracking-wide">resume</h2>
+        </a>
         
-        <p className="text-xl mb-8 max-w-2xl text-shadow">
-          I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
-        </p>
+        {/* Email Link */}
+        <a 
+          href="mailto:iansebas@umich.edu"
+          className="transition-all duration-300 hover:transform hover:scale-110"
+        >
+          <h2 className="text-6xl font-bold text-white text-shadow tracking-wide">email</h2>
+        </a>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl">
-          {/* Resume Button */}
-          <a 
-            href="/resume_ian_rios.pdf" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass-card flex flex-col items-center transition-all duration-300 hover:transform hover:scale-105 hover:bg-white/20"
-          >
-            <div className="w-14 h-14 flex items-center justify-center bg-white/20 rounded-full mb-4">
-              <FiFileText size={24} className="text-white" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-white text-shadow">resume</h3>
-            <p className="text-sm text-white/80">view my detailed experience</p>
-          </a>
-          
-          {/* Email Button */}
-          <a 
-            href="mailto:iansebas@umich.edu"
-            className="glass-card flex flex-col items-center transition-all duration-300 hover:transform hover:scale-105 hover:bg-white/20"
-          >
-            <div className="w-14 h-14 flex items-center justify-center bg-white/20 rounded-full mb-4">
-              <FiMail size={24} className="text-white" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-white text-shadow">email</h3>
-            <p className="text-sm text-white/80">iansebas@umich.edu</p>
-          </a>
-          
-          {/* LinkedIn Button */}
-          <a 
-            href="https://www.linkedin.com/in/iansebas/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass-card flex flex-col items-center transition-all duration-300 hover:transform hover:scale-105 hover:bg-white/20"
-          >
-            <div className="w-14 h-14 flex items-center justify-center bg-white/20 rounded-full mb-4">
-              <FiLinkedin size={24} className="text-white" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-white text-shadow">linkedin</h3>
-            <p className="text-sm text-white/80">connect with me</p>
-          </a>
-        </div>
+        {/* LinkedIn Link */}
+        <a 
+          href="https://www.linkedin.com/in/iansebas/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-all duration-300 hover:transform hover:scale-110"
+        >
+          <h2 className="text-6xl font-bold text-white text-shadow tracking-wide">linkedin</h2>
+        </a>
       </div>
-    </Section>
+    </div>
   );
 }
