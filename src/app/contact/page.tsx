@@ -32,8 +32,8 @@ const RandomHeadshot = ({ size = 128 }: { size?: number }) => {
 
 export default function Contact() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="flex justify-center gap-28 w-full max-w-6xl">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="flex flex-col md:flex-row justify-center gap-8 md:gap-28 w-full max-w-6xl">
         {/* Resume Link */}
         <a 
           href="/resume_ian_rios.pdf" 
@@ -41,7 +41,7 @@ export default function Contact() {
           rel="noopener noreferrer"
           className="transition-all duration-300 hover:transform hover:scale-110"
         >
-          <h2 className="text-6xl font-bold text-white text-shadow tracking-wide">resume</h2>
+          <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">resume</h2>
         </a>
         
         {/* Email Link */}
@@ -49,7 +49,7 @@ export default function Contact() {
           href="mailto:iansebas@umich.edu"
           className="transition-all duration-300 hover:transform hover:scale-110"
         >
-          <h2 className="text-6xl font-bold text-white text-shadow tracking-wide">email</h2>
+          <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">email</h2>
         </a>
         
         {/* LinkedIn Link */}
@@ -59,7 +59,7 @@ export default function Contact() {
           rel="noopener noreferrer"
           className="transition-all duration-300 hover:transform hover:scale-110"
         >
-          <h2 className="text-6xl font-bold text-white text-shadow tracking-wide">linkedin</h2>
+          <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">linkedin</h2>
         </a>
       </div>
     </div>
