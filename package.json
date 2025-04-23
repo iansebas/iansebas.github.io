@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "deploy": "gh-pages -d out -b master"
+    "lint": "next lint"
   },
   "dependencies": {
     "classnames": "^2.5.1",
