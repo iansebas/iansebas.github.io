@@ -128,3 +128,21 @@ a {
   60% { filter: blur(8px); opacity: 0.7; }
   100% { filter: blur(0); opacity: 1; }
 }
+
+@keyframes float {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0);
+  }
+  25% {
+    transform: translate(-50%, -50%) translate(100px, -100px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translate(0, 0);
+  }
+  75% {
+    transform: translate(-50%, -50%) translate(-100px, 100px);
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(0, 0);
+  }
+}

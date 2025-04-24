@@ -2,29 +2,42 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function Work() {
   const workItems = [
     {
       company: "Niantic Labs",
+      imageUrl: "https://upload.wikimedia.org/wikipedia/en/e/e5/Niantic_Logo_2020.png",
+      imageWidth: 150,
+      imageHeight: 55,
       role: "Computer Vision",
       acquisition: "Acquired by Scopely",
       description: "For half a decade, I led the productization of cutting-edge research by gaining in-depth technical expertise, expanding the technology, integrating it with real use cases in mind, and planning a roadmap for its technical improvement based on cross-collaboration with product, UX, and research. My work successfully launched augmented reality features in Pokémon Go for millions of users, multiple third-party games through our AR SDK, and various spatial computing enterprise projects."
     },
     {
       company: "6D.AI",
+      imageUrl: "https://miro.medium.com/v2/resize:fit:1272/format:webp/1*LVg7r9rWgK3T8TptP3QgoA.png",
+      imageWidth: 130,
+      imageHeight: 45,
       role: "Computer Vision",
       acquisition: "Acquired by Niantic Labs",
       description: "As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with Oxford University's Active Vision Lab to create one of the world's first SDKs for real-time 3D reconstruction and Persistent Augmented Reality."
     },
     {
       company: "Civil Maps",
+      imageUrl: "https://media.licdn.com/dms/image/v2/C4E0BAQFRjow5bX5IxA/company-logo_200_200/company-logo_200_200/0/1631340322295?e=2147483647&v=beta&t=tihy0S41UegIa1l0gFkqhxQ454TmTw2asz_c2Z_YEyc",
+      imageWidth: 110,
+      imageHeight: 45,
       role: "Research Engineering",
       acquisition: "Acquired by Luminar",
       description: "I started my career in the Self-Driving Car industry, creating city-scale, high-accuracy 3D Maps for autonomous vehicles"
     },
     {
       company: "Magic Fund",
+      imageUrl: "https://i.postimg.cc/mrHqYjbk/magicfundlogo.png",
+      imageWidth: 140,
+      imageHeight: 45,
       role: "Limited Partner",
       acquisition: "",
       description: "Honored to witness the next rise of the new generation of innovators"
@@ -153,7 +166,16 @@ export default function Work() {
             className="work-card glass-card max-w-3xl mx-auto mb-10 last:mb-0 opacity-70 hover:opacity-100 transition-opacity"
           >
             <div className="mb-6">
-              <h2 className="text-4xl font-bold text-white text-shadow mb-1">{item.company}</h2>
+              <div className="mb-3 relative">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.company}
+                  width={item.imageWidth}
+                  height={item.imageHeight}
+                  className="object-contain"
+                  priority
+                />
+              </div>
               <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
               {item.acquisition && (
                 <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>

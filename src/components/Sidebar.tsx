@@ -61,7 +61,7 @@ const RandomHeadshot = () => {
 const navItems = [
   { name: 'about', path: '/' },
   { name: 'work', path: '/work' },
-  { name: 'writing', path: 'https://iansebas.substack.com/', external: true },
+  { name: 'writing', path: 'https://unrulyabstractions.substack.com/', external: true },
   { name: 'contact', path: '/contact' },
 ];
 

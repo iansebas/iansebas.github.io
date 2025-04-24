@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google';
 import '@/styles/globals.css';
 import Sidebar from '@/components/Sidebar';
 import BackgroundManager from '@/components/BackgroundManager';
+import FloatingVideos from '@/components/FloatingVideos';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -33,6 +34,9 @@ export default function RootLayout({
         <div className="relative flex flex-col md:flex-row min-h-screen overflow-hidden">
           {/* Background images */}
           <BackgroundManager />
+          
+          {/* Floating YouTube videos */}
+          <FloatingVideos />
           
           {/* Fixed background overlay - reduced opacity for better image visibility */}
           <div className="fixed inset-0 -z-10 bg-black/40" />
