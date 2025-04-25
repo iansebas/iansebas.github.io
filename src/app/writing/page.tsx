@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 export default function Writing() {
   const router = useRouter();
-  const substackUrl = 'https://iansebas.substack.com/';
+  const substackUrl = 'https://unrulyabstractions.substack.com/';
   
   // Redirect to Substack immediately
   useEffect(() => {
