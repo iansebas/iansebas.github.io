@@ -25,9 +25,8 @@ git add .
 git commit -m "deployment $COUNT"
 git push origin master
 
-# Build and export
+# Build (includes export because of output:'export' in next.config.mjs)
 npm run build
-npm run export
 
 # Deploy to live branch using gh-pages
 npx gh-pages -d out -b live -r https://github.com/iansebas/iansebas.github.io.git
