@@ -32,4 +32,7 @@ npm run export
 # Deploy to live branch using gh-pages
 npx gh-pages -d out -b live
 
+# Clean up out/ folder after deployment
+rm -rf out
+
 echo "Deployment $COUNT complete." 
