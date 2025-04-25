@@ -28,13 +28,19 @@ console.log(`Found ${htmlFiles.length} HTML files to process`);
 htmlFiles.forEach(filePath => {
   let htmlContent = fs.readFileSync(filePath, 'utf8');
   
-  // Replace all instances of /_next/ with ./next/
-  htmlContent = htmlContent.replace(/\/_next\//g, './_next/');
+  // Get the relative path depth to the root based on file location
+  const pathToRoot = path.relative(path.dirname(filePath), './out').replace(/\\/g, '/');
+  const pathPrefix = pathToRoot === '' ? '.' : pathToRoot;
   
-  // Also fix image and link paths that start with / but aren't /_next/
-  // Skip href="/" which should stay as root
-  htmlContent = htmlContent.replace(/href="\/([^"/][^"]*?)"/g, 'href="./$1"');
-  htmlContent = htmlContent.replace(/src="\/([^"/][^"]*?)"/g, 'src="./$1"');
+  // Replace all instances of /_next/ with the correct relative path to _next/
+  htmlContent = htmlContent.replace(/\/_next\//g, `${pathPrefix}/_next/`);
+  
+  // Fix root href="/" links to point to index.html or relative path to root
+  htmlContent = htmlContent.replace(/href="\s*\/\s*"/g, `href="${pathPrefix === '.' ? './' : pathPrefix + '/'}"`)
+  
+  // Fix other root path references for links and images
+  htmlContent = htmlContent.replace(/href="\/([^"/][^"]*?)"/g, `href="${pathPrefix}/$1"`);
+  htmlContent = htmlContent.replace(/src="\/([^"/][^"]*?)"/g, `src="${pathPrefix}/$1"`);
   
   fs.writeFileSync(filePath, htmlContent);
   console.log(`Fixed paths in ${filePath}`);
