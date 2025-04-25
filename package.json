@@ -2,11 +2,15 @@
   "name": "ian-rios-portfolio",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://iansebas.github.io",
   "scripts": {
     "dev": "next dev",
     "build": "next build && node fix-paths.js && touch out/.nojekyll",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "gh-pages -d out",
+    "deploy:ci": "next build && node fix-paths.js && touch out/.nojekyll && gh-pages -d out",
+    "export": "next export"
   },
   "dependencies": {
     "classnames": "^2.5.1",
