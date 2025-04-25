@@ -30,7 +30,7 @@ npm run build
 npm run export
 
 # Deploy to live branch using gh-pages
-npx gh-pages -d out -b live
+npx gh-pages -d out -b live -r https://github.com/iansebas/iansebas.github.io.git
 
 # Clean up out/ folder after deployment
 rm -rf out
