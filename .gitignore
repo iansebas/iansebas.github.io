@@ -38,5 +38,5 @@ next-env.d.ts
 # next.js static assets
 /_next/
 
-# static export output
-/out/
+# Keep out directory for GitHub Pages
+# /out/
