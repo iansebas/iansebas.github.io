@@ -4,40 +4,40 @@
 .pnp.js
 .yarn/install-state.gz
 
-# testing
-/coverage
+# # testing
+# /coverage
 
-# next.js
-/.next/
+# # next.js
+# /.next/
 
-# production
-/build
+# # production
+# /build
 
-# misc
+# # misc
 .DS_Store
-*.pem
+# *.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# # debug
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
 
-# local env files
-.env*.local
+# # local env files
+# .env*.local
 
-# vercel
-.vercel
+# # vercel
+# .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# # typescript
+# *.tsbuildinfo
+# next-env.d.ts
 
-# temporary backup
-/temp_backup
+# # temporary backup
+# /temp_backup
 
-# next.js static assets (except in out directory)
-/_next/
-!/out/_next/
+# # next.js static assets (except in out directory)
+# /_next/
+# !/out/_next/
 
-# Keep out directory for GitHub Pages
-# /out/
+# # Keep out directory for GitHub Pages
+# # /out/
