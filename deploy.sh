@@ -1,37 +1,109 @@
 #!/bin/bash
 set -e
 
+echo "
+##############################################################################
+#                                                                            #
+#                     STARTING DEPLOYMENT PROCESS                            #
+#                                                                            #
+##############################################################################
+"
+
 # Deployment counter file
 COUNTER_FILE=".deploy_count"
 
 # Initialize counter if not present
 if [ ! -f "$COUNTER_FILE" ]; then
   echo 1 > "$COUNTER_FILE"
+  echo "##### Created new deployment counter file #####"
 fi
 
 # Read and increment counter
 COUNT=$(cat "$COUNTER_FILE")
 NEXT_COUNT=$((COUNT + 1))
 echo $NEXT_COUNT > "$COUNTER_FILE"
+echo "
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                DEPLOYMENT NUMBER: $COUNT
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+"
 
-# Add all changes and commit to master
+# Check branch
+echo "
+##############################################################################
+#                         CHECKING BRANCH                                    #
+##############################################################################
+"
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$BRANCH" != "master" ]; then
-  echo "You must be on the master branch to deploy. Current branch: $BRANCH"
+  echo "
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!                                                           !!
+  !!  ERROR: You must be on the master branch to deploy.       !!
+  !!  Current branch: $BRANCH                                  !!
+  !!                                                           !!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  "
   exit 1
 fi
+echo "✅ Branch check passed. Currently on master branch."
 
+# Git operations
+echo "
+##############################################################################
+#                         GIT OPERATIONS                                     #
+##############################################################################
+"
+echo ">>> Adding all changes to git..."
 git add .
+echo "✅ Changes added."
+
+echo ">>> Committing changes..."
 git commit -m "deployment $COUNT"
+echo "✅ Changes committed."
+
+echo ">>> Pushing to master branch..."
 git push origin master
+echo "✅ Changes pushed to master branch."
 
-# Build (includes export because of output:'export' in next.config.mjs)
+# Build
+echo "
+##############################################################################
+#                         BUILDING PROJECT                                   #
+##############################################################################
+"
+echo ">>> Running build process (includes export)..."
 npm run build
+echo "✅ Build completed successfully."
 
-# Deploy to live branch using gh-pages
+# Deploy
+echo "
+##############################################################################
+#                         DEPLOYING TO LIVE BRANCH                           #
+##############################################################################
+"
+echo ">>> Deploying to live branch using gh-pages..."
 npx gh-pages -d out -b live -r https://github.com/iansebas/iansebas.github.io.git
+echo "✅ Deployment to live branch completed."
 
-# Clean up out/ folder after deployment
+# Cleanup
+echo "
+##############################################################################
+#                         CLEANING UP                                        #
+##############################################################################
+"
+echo ">>> Removing build artifacts..."
 rm -rf out
+echo "✅ Cleanup completed."
 
-echo "Deployment $COUNT complete." 
+echo "
+##############################################################################
+#                                                                            #
+#                     DEPLOYMENT COMPLETE                                    #
+#                                                                            #
+#                     Deployment $COUNT successfully completed                #
+#                                                                            #
+#                     Live site should be updated shortly                    #
+#                                                                            #
+##############################################################################
+" 
