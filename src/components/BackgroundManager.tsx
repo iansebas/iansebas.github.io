@@ -30,41 +30,53 @@ const pathToBackground = {
   ]
 };
 
-// Pre-load all background images
+// Pre-load background images with lazy loading
 const preloadBackgroundImages = () => {
+  if (typeof window === 'undefined') return;
+
   // Get all unique image paths
   const allImages = new Set<string>();
   Object.values(pathToBackground).forEach(paths => {
     paths.forEach(path => allImages.add(path));
   });
   
-  // Also preload the small versions for faster initial loading
-  const smallImages = new Set<string>();
-  allImages.forEach(path => {
-    // Convert regular path to small version
-    const smallPath = path.replace('.png', '_small.png');
-    smallImages.add(smallPath);
+  // Create an Intersection Observer for lazy loading
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target as HTMLImageElement;
+        img.src = img.dataset.src || '';
+        observer.unobserve(img);
+      }
+    });
+  }, {
+    rootMargin: '50px 0px',
+    threshold: 0.1
   });
-  
-  // Preload all background images - first small then full-size
-  if (typeof window !== 'undefined') {
-    Array.from(smallImages).forEach(src => {
-      const img = new window.Image();
-      img.src = src;
-    });
-    
-    // Then load the full-size images
-    Array.from(allImages).forEach(src => {
-      const img = new window.Image();
-      img.src = src;
-    });
-  }
+
+  // Preload images with lazy loading
+  Array.from(allImages).forEach(src => {
+    const img = new window.Image();
+    img.dataset.src = src;
+    observer.observe(img);
+  });
 };
 
 export default function BackgroundManager() {
   const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
   
-  // Preload all background images once on component mount
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Preload background images once on component mount
   useEffect(() => {
     preloadBackgroundImages();
   }, []);
@@ -72,7 +84,9 @@ export default function BackgroundManager() {
   // Ensure we always have background images for the current path
   const getCurrentBackgroundImages = () => {
     if (pathname && pathname in pathToBackground) {
-      return pathToBackground[pathname as keyof typeof pathToBackground];
+      const images = pathToBackground[pathname as keyof typeof pathToBackground];
+      // On mobile, only use the first image to reduce memory usage
+      return isMobile ? [images[0]] : images;
     }
     return ['/images/backgrounds/bg0.png', '/images/backgrounds/bg1.png'];
   };
@@ -93,7 +107,8 @@ export default function BackgroundManager() {
           >
             <RandomBackground 
               images={getCurrentBackgroundImages()} 
-              key={pathname} // Add key to force remount when pathname changes
+              key={pathname}
+              isMobile={isMobile}
             />
           </motion.div>
         )}

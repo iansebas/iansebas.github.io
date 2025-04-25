@@ -40,7 +40,7 @@ export default function Work() {
       imageHeight: 45,
       role: "Limited Partner",
       acquisition: "",
-      description: "Honored to witness the next rise of the new generation of innovators"
+      description: "Honored to be around the coolest people in tech and media"
     }
   ];
 
@@ -48,8 +48,62 @@ export default function Work() {
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const autoScrollRef = useRef<number | null>(null);
+  const lastScrollTimeRef = useRef<number>(0);
+  const isScrollingUpRef = useRef<boolean>(false);
 
-  // No longer needed since we're not using markdown in the descriptions
+  // Auto-scroll functionality
+  useEffect(() => {
+    if (!isHovering && !isDragging && containerRef.current) {
+      const scrollSpeed = 2; // pixels per frame
+      const scrollInterval = 40; // ms between scroll updates
+      let lastScrollTime = 0;
+
+      const autoScroll = (timestamp: number) => {
+        if (!lastScrollTime) lastScrollTime = timestamp;
+        const elapsed = timestamp - lastScrollTime;
+
+        if (elapsed >= scrollInterval) {
+          if (containerRef.current) {
+            const container = containerRef.current;
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            
+            // Check if we need to change direction
+            if (container.scrollTop >= maxScroll - 10) {
+              isScrollingUpRef.current = true;
+            } else if (container.scrollTop <= 10) {
+              isScrollingUpRef.current = false;
+            }
+
+            // Scroll in the appropriate direction
+            if (isScrollingUpRef.current) {
+              container.scrollBy({
+                top: -scrollSpeed,
+                behavior: 'smooth'
+              });
+            } else {
+              container.scrollBy({
+                top: scrollSpeed,
+                behavior: 'smooth'
+              });
+            }
+          }
+          lastScrollTime = timestamp;
+        }
+
+        autoScrollRef.current = requestAnimationFrame(autoScroll);
+      };
+
+      autoScrollRef.current = requestAnimationFrame(autoScroll);
+    }
+
+    return () => {
+      if (autoScrollRef.current) {
+        cancelAnimationFrame(autoScrollRef.current);
+      }
+    };
+  }, [isHovering, isDragging]);
 
   // Handle mouse/touch events for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -89,6 +143,11 @@ export default function Work() {
 
   const stopDragging = () => {
     setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    stopDragging();
+    setIsHovering(false);
   };
 
   // Add event listeners only once when component mounts
@@ -145,51 +204,135 @@ export default function Work() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 overflow-hidden">
       <div 
         ref={containerRef}
-        className="work-carousel-container max-h-[70vh] overflow-y-hidden cursor-grab"
+        className="work-carousel-container overflow-y-auto cursor-grab"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={stopDragging}
-        onMouseLeave={stopDragging}
+        onMouseLeave={handleMouseLeave}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={stopDragging}
+        onMouseEnter={() => setIsHovering(true)}
         style={{
-          cursor: isDragging ? 'grabbing' : 'grab'
+          cursor: isDragging ? 'grabbing' : 'grab',
+          height: '75vh',
+          scrollPaddingTop: '80px',
+          scrollPaddingBottom: '80px',
+          paddingTop: '80px',
+          paddingBottom: '80px',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)',
+          scrollBehavior: 'smooth'
         }}
       >
-        {workItems.map((item, index) => (
-          <div 
-            key={index}
-            className="work-card glass-card max-w-3xl mx-auto mb-10 last:mb-0 opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <div className="mb-6">
-              <div className="mb-3 relative">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.company}
-                  width={item.imageWidth}
-                  height={item.imageHeight}
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
-              {item.acquisition && (
-                <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+        <div className="py-12">
+          {workItems.map((item, index) => (
+            <div 
+              key={index}
+              className="work-card glass-card max-w-3xl mx-auto mb-16 last:mb-16 opacity-70 hover:opacity-100 transition-opacity"
+              style={{ scrollMarginTop: '100px', scrollMarginBottom: '100px' }}
+            >
+              {item.company === "Niantic Labs" && (
+                <div className="flex flex-row items-center gap-0">
+                  <div className="relative w-48 h-52 flex-shrink-0 pr-0">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.company}
+                      fill
+                      className="object-contain object-left"
+                      priority
+                    />
+                  </div>
+                  <div className="flex-grow ml-2">
+                    <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
+                    {item.acquisition && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    )}
+                    <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
+                      For half a decade, I led the <strong className="text-white">productization of cutting-edge research</strong> by gaining in-depth technical expertise, expanding the technology, integrating it with real use cases in mind, and planning a roadmap for its technical improvement based on cross-collaboration with product, UX, and research. My work successfully launched <strong className="text-white">augmented reality features in Pokémon Go for millions of users</strong>, multiple third-party games through our AR SDK, and various <strong className="text-white">spatial computing</strong> enterprise projects.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {item.company === "6D.AI" && (
+                <div className="flex flex-col items-center">
+                  <div className="relative w-full max-w-[400px] h-24 mb-4">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.company}
+                      fill
+                      className="object-contain"
+                      priority
+                    />
+                  </div>
+                  <div className="w-full">
+                    <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
+                    {item.acquisition && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    )}
+                    <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
+                      As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with <strong className="text-white">Oxford University's Active Vision Lab</strong> to create one of the world's first SDKs for real-time 3D reconstruction and Persistent Augmented Reality.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {item.company === "Civil Maps" && (
+                <div className="flex flex-row-reverse items-start">
+                  <div className="relative w-36 h-28 flex-shrink-0 ml-4">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.company}
+                      fill
+                      className="object-contain object-right"
+                      priority
+                    />
+                  </div>
+                  <div className="flex-grow text-right">
+                    <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
+                    {item.acquisition && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    )}
+                    <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
+                      I started my career in the Self-Driving Car industry, creating city-scale, high-accuracy <strong className="text-white">3D Maps for autonomous vehicles</strong>
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {item.company === "Magic Fund" && (
+                <div className="flex flex-row items-start">
+                  <div className="relative w-48 h-28 flex-shrink-0">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.company}
+                      fill
+                      className="object-contain object-left"
+                      priority
+                    />
+                  </div>
+                  <div className="ml-4 flex-grow">
+                    <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
+                    {item.acquisition && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    )}
+                    <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">{item.description}</p>
+                  </div>
+                </div>
               )}
             </div>
-            <p className="text-base text-white/90 text-shadow leading-relaxed">{item.description}</p>
-          </div>
-        ))}
-      </div>
-      
-      <div className="absolute bottom-8 text-center w-full pointer-events-none">
-        <p className="text-sm text-white/70 text-shadow bg-black/20 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
-          Drag to scroll
-        </p>
+          ))}
+        </div>
+        
+        <div className="absolute bottom-8 text-center w-full pointer-events-none">
+          <p className="text-sm text-white/70 text-shadow bg-black/20 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
+            Drag to scroll
+          </p>
+        </div>
       </div>
     </div>
   );

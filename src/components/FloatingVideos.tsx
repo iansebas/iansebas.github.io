@@ -4,9 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface VideoConfig {
   id: string;
-  videoId: string;
-  startTime: number;
-  endTime: number;
+  videoId?: string;
+  imageUrl?: string;
+  startTime?: number;
+  endTime?: number;
   width: number;
   height: number;
   shouldCrop?: boolean;
@@ -28,8 +29,8 @@ const VIDEOS: VideoConfig[] = [
     videoId: 'KS12GgvBUIE', // AWS presentation video
     startTime: 50,
     endTime: 180,
-    width: 400,
-    height: 160,
+    width: 360,
+    height: 144,
     shouldCrop: true,
     cropScale: 1.3,
     cropTranslate: { x: -15, y: -15 }
@@ -37,11 +38,24 @@ const VIDEOS: VideoConfig[] = [
   {
     id: 'eightwall_video',
     videoId: 'yNbjrSomA-M', // 8th Wall video
-    // Use a fixed time range - this is simpler for debugging
     startTime: 7,
     endTime: 10,
-    width: 300,
-    height: 169,
+    width: 270,
+    height: 152,
+    shouldCrop: false
+  },
+  {
+    id: 'devkit_image',
+    imageUrl: 'https://miro.medium.com/v2/resize:fit:1400/format:webp/1*iqUArhhSLOX1jsmcGOyAbA.png',
+    width: 252,
+    height: 144,
+    shouldCrop: false
+  },
+  {
+    id: 'meshed_video',
+    videoId: 'meshed',
+    width: 288,
+    height: 162,
     shouldCrop: false
   }
 ];
@@ -51,9 +65,20 @@ const FloatingVideos: React.FC = () => {
   const animationFrameRef = useRef<number>();
   const frameCountRef = useRef(0);
   const SIDEBAR_WIDTH = 256;
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || isMobile) return;
 
     // Initialize positions on opposite sides to prevent overlap
     const initialPositions: Record<string, Position> = {};
@@ -66,16 +91,32 @@ const FloatingVideos: React.FC = () => {
     initialPositions['aws_video'] = {
       x: SIDEBAR_WIDTH + 100,
       y: availableHeight / 4,
-      vx: 0.3, // Reduced from 0.6
-      vy: 0.2  // Reduced from 0.4
+      vx: 0.1, // Reduced speed
+      vy: 0.05 // Reduced speed
     };
 
     // Place 8th Wall video on the right side
     initialPositions['eightwall_video'] = {
       x: window.innerWidth - 400,
       y: (availableHeight * 3) / 4,
-      vx: -0.3, // Reduced from -0.6
-      vy: -0.2  // Reduced from -0.4
+      vx: -0.1, // Reduced speed
+      vy: -0.05 // Reduced speed
+    };
+
+    // Place devkit image in the middle
+    initialPositions['devkit_image'] = {
+      x: window.innerWidth / 2 - 126,
+      y: availableHeight / 2 - 72,
+      vx: 0.05, // Reduced speed
+      vy: 0.025 // Reduced speed
+    };
+
+    // Place meshed video on the right side
+    initialPositions['meshed_video'] = {
+      x: window.innerWidth - 340,
+      y: availableHeight / 3,
+      vx: -0.08, // Reduced speed
+      vy: 0.04 // Reduced speed
     };
 
     setPositions(initialPositions);
@@ -92,30 +133,29 @@ const FloatingVideos: React.FC = () => {
           bottom: window.innerHeight - 20
         };
 
-        // Update each video's position
+        // Update each video's position with simplified physics
         VIDEOS.forEach((video1, i) => {
           const pos1 = next[video1.id];
           
-          // Wall collisions with stronger bounce
+          // Simplified wall collisions
           if (pos1.x <= bounds.left || pos1.x + video1.width >= bounds.right) {
-            pos1.vx = -pos1.vx; // Full reflection
-            pos1.vy += (Math.random() - 0.5) * 0.4; // Increased variation
+            pos1.vx = -pos1.vx * 0.95;
+            pos1.x = pos1.x <= bounds.left ? bounds.left + 5 : bounds.right - video1.width - 5;
           }
           if (pos1.y <= bounds.top || pos1.y + video1.height >= bounds.bottom) {
-            pos1.vy = -pos1.vy; // Full reflection
-            pos1.vx += (Math.random() - 0.5) * 0.4; // Increased variation
+            pos1.vy = -pos1.vy * 0.95;
+            pos1.y = pos1.y <= bounds.top ? bounds.top + 5 : bounds.bottom - video1.height - 5;
           }
 
-          // Keep within bounds with a margin
-          pos1.x = Math.max(bounds.left, Math.min(bounds.right - video1.width, pos1.x));
-          pos1.y = Math.max(bounds.top, Math.min(bounds.bottom - video1.height, pos1.y));
+          // Keep within bounds
+          pos1.x = Math.max(bounds.left + 5, Math.min(bounds.right - video1.width - 5, pos1.x));
+          pos1.y = Math.max(bounds.top + 5, Math.min(bounds.bottom - video1.height - 5, pos1.y));
 
-          // Check collisions with other videos
-          VIDEOS.forEach((video2, j) => {
-            if (i >= j) return;
+          // Simplified collision detection - only check with next video
+          if (i < VIDEOS.length - 1) {
+            const video2 = VIDEOS[i + 1];
             const pos2 = next[video2.id];
 
-            // Detect collision
             const dx = (pos2.x + video2.width/2) - (pos1.x + video1.width/2);
             const dy = (pos2.y + video2.height/2) - (pos1.y + video1.height/2);
             const distance = Math.sqrt(dx * dx + dy * dy);
@@ -125,23 +165,16 @@ const FloatingVideos: React.FC = () => {
             ) * 0.8;
 
             if (distance < minDistance) {
-              // Simple velocity swap with full energy preservation
+              // Simplified collision response
               const tempVx = pos1.vx;
               const tempVy = pos1.vy;
-              pos1.vx = pos2.vx;
-              pos1.vy = pos2.vy;
-              pos2.vx = tempVx;
-              pos2.vy = tempVy;
+              pos1.vx = pos2.vx * 0.95;
+              pos1.vy = pos2.vy * 0.95;
+              pos2.vx = tempVx * 0.95;
+              pos2.vy = tempVy * 0.95;
 
-              // Add random velocity components to prevent getting stuck
-              const randomBoost = 0.3;
-              pos1.vx += (Math.random() - 0.5) * randomBoost;
-              pos1.vy += (Math.random() - 0.5) * randomBoost;
-              pos2.vx += (Math.random() - 0.5) * randomBoost;
-              pos2.vy += (Math.random() - 0.5) * randomBoost;
-
-              // Strong push apart
-              const pushScale = 1.0;
+              // Simple push apart
+              const pushScale = 0.3;
               const pushX = (dx / distance) * Math.abs(minDistance - distance) * pushScale;
               const pushY = (dy / distance) * Math.abs(minDistance - distance) * pushScale;
               
@@ -150,27 +183,27 @@ const FloatingVideos: React.FC = () => {
               pos2.x += pushX;
               pos2.y += pushY;
             }
-          });
+          }
 
           // Update position
           pos1.x += pos1.vx;
           pos1.y += pos1.vy;
 
-          // Periodic velocity boost
-          if (frameCountRef.current % 180 === 0) {
+          // Reduced velocity boost frequency
+          if (frameCountRef.current % 300 === 0) {
             const speed = Math.sqrt(pos1.vx * pos1.vx + pos1.vy * pos1.vy);
-            if (speed < 0.25) { // Reduced from 0.5
+            if (speed < 0.05) {
               const angle = Math.random() * Math.PI * 2;
-              const boost = 0.15; // Reduced from 0.25
+              const boost = 0.03;
               pos1.vx += Math.cos(angle) * boost;
               pos1.vy += Math.sin(angle) * boost;
             }
           }
 
-          // Maintain velocity within bounds
+          // Maintain velocity within gentler bounds
           const speed = Math.sqrt(pos1.vx * pos1.vx + pos1.vy * pos1.vy);
-          const minSpeed = 0.2; // Reduced from 0.4
-          const maxSpeed = 0.5; // Reduced from 1.0
+          const minSpeed = 0.03;
+          const maxSpeed = 0.15;
           
           if (speed < minSpeed) {
             const scale = minSpeed / speed;
@@ -195,16 +228,20 @@ const FloatingVideos: React.FC = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [isMobile]);
+
+  // Don't render videos on mobile
+  if (isMobile) return null;
 
   const getVideoUrl = (video: VideoConfig) => {
     if (video.id === 'aws_video') {
       // Standard looping for AWS video
       return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&controls=0&showinfo=0&modestbranding=1&start=${video.startTime}&end=${video.endTime}`;
+    } else if (video.id === 'meshed_video') {
+      // Local video file
+      return '/videos/meshed.mov';
     } else {
       // Special approach for 8th wall video
-      // Instead of trying to use start/end with looping, use the clip parameter 
-      // which is specifically designed for short segments
       return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&controls=0&showinfo=0&modestbranding=1&clip=${video.startTime};${video.endTime}&clipt=${video.startTime};${video.endTime}`;
     }
   };
@@ -227,7 +264,32 @@ const FloatingVideos: React.FC = () => {
               opacity: 0.7,
             }}
           >
-            {video.shouldCrop ? (
+            {video.imageUrl ? (
+              <img
+                src={video.imageUrl}
+                alt="Floating element"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                }}
+              />
+            ) : video.id === 'meshed_video' ? (
+              <video
+                src={getVideoUrl(video)}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                }}
+              />
+            ) : video.shouldCrop ? (
               <div 
                 style={{
                   width: '100%',

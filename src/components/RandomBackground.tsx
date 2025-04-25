@@ -5,9 +5,10 @@ import { motion } from 'framer-motion';
 
 interface RandomBackgroundProps {
   images: string[];
+  isMobile?: boolean;
 }
 
-const RandomBackground = ({ images }: RandomBackgroundProps) => {
+const RandomBackground = ({ images, isMobile = false }: RandomBackgroundProps) => {
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   const [loaded, setLoaded] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
@@ -26,9 +27,21 @@ const RandomBackground = ({ images }: RandomBackgroundProps) => {
     const preloadPromises = images.map(src => {
       return new Promise<string>((resolve, reject) => {
         const img = new window.Image();
-        img.src = src;
-        img.onload = () => resolve(src);
-        img.onerror = () => reject(new Error(`Failed to load ${src}`));
+        // On mobile, use a lower quality version if available
+        const mobileSrc = isMobile ? src.replace('.png', '_mobile.png') : src;
+        img.src = mobileSrc;
+        img.onload = () => resolve(mobileSrc);
+        img.onerror = () => {
+          // Fallback to original image if mobile version fails
+          if (isMobile) {
+            const fallbackImg = new window.Image();
+            fallbackImg.src = src;
+            fallbackImg.onload = () => resolve(src);
+            fallbackImg.onerror = () => reject(new Error(`Failed to load ${src}`));
+          } else {
+            reject(new Error(`Failed to load ${src}`));
+          }
+        };
       });
     });
     
@@ -60,11 +73,14 @@ const RandomBackground = ({ images }: RandomBackgroundProps) => {
         clearInterval(cycleTimerRef.current);
       }
     };
-  }, [images]);
+  }, [images, isMobile]);
 
   // Set up cycling through images
   useEffect(() => {
     if (!loaded || preloadedImages.current.length <= 1) return;
+    
+    // On mobile, don't cycle images to save resources
+    if (isMobile) return;
     
     // Start cycling images after initial load
     cycleTimerRef.current = setInterval(() => {
@@ -86,14 +102,14 @@ const RandomBackground = ({ images }: RandomBackgroundProps) => {
         
         return prevIndex; // If no valid image found, keep current index
       });
-    }, 15000); // Change every 15 seconds
+    }, 30000); // Change every 30 seconds (increased from 15 to reduce CPU usage)
     
     return () => {
       if (cycleTimerRef.current) {
         clearInterval(cycleTimerRef.current);
       }
     };
-  }, [loaded, images]);
+  }, [loaded, images, isMobile]);
 
   // Handle background rendering based on state
   if (!loaded || !backgroundImage) {
@@ -105,7 +121,9 @@ const RandomBackground = ({ images }: RandomBackgroundProps) => {
           style={{ 
             backgroundImage: `url(${preloadedImages.current[0]})`,
             backgroundPosition: 'center center',
-            backgroundSize: 'cover'
+            backgroundSize: 'cover',
+            // On mobile, use a simpler transform for better performance
+            transform: isMobile ? 'none' : 'translate3d(0,0,0)'
           }}
         />
       );
@@ -126,7 +144,9 @@ const RandomBackground = ({ images }: RandomBackgroundProps) => {
       style={{ 
         backgroundImage: `url(${backgroundImage})`,
         backgroundPosition: 'center center',
-        backgroundSize: 'cover'
+        backgroundSize: 'cover',
+        // On mobile, use a simpler transform for better performance
+        transform: isMobile ? 'none' : 'translate3d(0,0,0)'
       }}
     />
   );

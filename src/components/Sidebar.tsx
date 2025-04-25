@@ -84,8 +84,8 @@ const Sidebar = () => {
       setTimeout(() => {
         setTitleIndex((prev) => (prev + 1) % titles.length);
         setIsChanging(false);
-      }, 300);
-    }, 5000); // Changed from 3000 to 5000 ms for better performance
+      }, 150); // Changed from 300 to 150 ms for faster transition
+    }, 3000); // Changed from 5000 to 3000 ms for more frequent changes
 
     return () => clearInterval(interval);
   }, []);
@@ -111,23 +111,23 @@ const Sidebar = () => {
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       )}>
         <div className="flex flex-col h-full px-8 py-10">
-          <div className="mb-8">
+          <div className="mb-4">
             <div className="relative w-20 h-20 mb-4 mx-auto rounded-full overflow-hidden border-2 border-white/70 shadow-lg">
               <RandomHeadshot />
             </div>
             
             <h1 className="text-2xl font-bold text-white text-center text-shadow">ian rios</h1>
             
-            <div className="h-7 relative overflow-hidden">
+            <div className="h-10 relative overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.p 
                   key={titleIndex}
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.15 }}
                   className={classNames(
-                    "text-md font-medium text-white/90 mt-1 text-center text-shadow absolute w-full",
+                    "text-lg font-medium text-white/90 mt-1 text-center text-shadow absolute w-full",
                     isChanging ? "blur-sm" : ""
                   )}
                 >
@@ -137,8 +137,8 @@ const Sidebar = () => {
             </div>
           </div>
 
-          <nav className="flex-1">
-            <ul className="space-y-8">
+          <nav className="flex-1 flex items-start pt-4">
+            <ul className="space-y-6 w-full">
               {navItems.map((item) => (
                 <li key={item.name}>
                   {item.external ? (
@@ -175,10 +175,6 @@ const Sidebar = () => {
               ))}
             </ul>
           </nav>
-          
-          <div className="mt-auto w-full flex justify-end">
-            <p className="text-sm text-white/70 text-shadow">© {new Date().getFullYear()} Ian Rios</p>
-          </div>
         </div>
       </div>
     </>
