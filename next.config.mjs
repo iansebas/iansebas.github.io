@@ -11,8 +11,7 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Base path if deploying to GitHub Pages in a repo that's not username.github.io
-  // If using username.github.io domain, keep this as empty string
+  // For GitHub Pages deployment
   basePath: '',
 };
 
