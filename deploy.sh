@@ -83,7 +83,32 @@ echo "
 ##############################################################################
 "
 echo ">>> Deploying to live branch using gh-pages..."
-npx gh-pages -d out -b live -r https://github.com/iansebas/iansebas.github.io.git
+
+# Use SSH URL instead of HTTPS (or reuse the origin remote which should have authentication set up)
+REPO_URL=$(git config --get remote.origin.url)
+echo ">>> Using repository URL: $REPO_URL"
+
+# Check if URL is HTTPS and provide a warning
+if [[ $REPO_URL == https://* ]]; then
+  echo "
+  ⚠️  WARNING: Using HTTPS URL which may require token-based authentication ⚠️
+  If deployment fails, consider switching to SSH:
+    - Run: git remote set-url origin git@github.com:iansebas/iansebas.github.io.git
+  Or use a GitHub Personal Access Token (classic) with repo scope
+  "
+fi
+
+# Debug info
+echo ">>> Git authentication method in use:"
+if [[ -f ~/.git-credentials ]]; then
+  echo "  - Git credentials helper is configured"
+fi
+if [[ -f ~/.ssh/id_rsa || -f ~/.ssh/id_ed25519 ]]; then
+  echo "  - SSH keys are present"
+fi
+
+echo ">>> Attempting deployment with gh-pages..."
+npx gh-pages -d out -b live -r "$REPO_URL"
 echo "✅ Deployment to live branch completed."
 
 # Cleanup
