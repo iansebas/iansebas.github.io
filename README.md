@@ -35,6 +35,17 @@ A modern, responsive portfolio website built with Next.js, React, and Tailwind C
 3. The static files will be in the `out` directory
 4. Deploy to GitHub Pages by pushing to your repository
 
+## Deployment
+
+- Source code is on the `master` branch.
+- The `live` branch is used for GitHub Pages deployment.
+- To deploy, run `./deploy.sh` from the project root.
+- The script will:
+  - Increment a deployment counter
+  - Commit to `master` with message `deployment X`
+  - Build and export the site
+  - Push the contents of `out/` to the `live` branch using `gh-pages`
+
 ## Folder Structure
 
 ```
