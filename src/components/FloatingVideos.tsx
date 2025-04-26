@@ -61,57 +61,6 @@ const FloatingVideos: React.FC = () => {
   useEffect(() => {
     if (typeof window === 'undefined' || isMobile) return;
 
-    // Function to generate random position with bias towards top or bottom
-    const getRandomPosition = (existingPositions: Record<string, Position> = {}) => {
-      const screenHeight = window.innerHeight;
-      const MIN_VERTICAL_DISTANCE = screenHeight * 0.15; // Minimum distance between items
-      const MAX_EDGE_OCCLUSION = 0.2; // Maximum 20% occlusion by screen edges
-      const MIDDLE_FIFTH_START = screenHeight * 0.4; // Start of middle fifth
-      const MIDDLE_FIFTH_END = screenHeight * 0.6; // End of middle fifth
-      
-      // Try up to 10 times to find a valid position
-      for (let attempt = 0; attempt < 10; attempt++) {
-        const random = Math.random();
-        let newY;
-        
-        if (random < 0.5) {
-          // 50% chance to be in top section (above middle fifth)
-          newY = Math.random() * (MIDDLE_FIFTH_START - MAX_EDGE_OCCLUSION * screenHeight);
-        } else {
-          // 50% chance to be in bottom section (below middle fifth)
-          newY = MIDDLE_FIFTH_END + Math.random() * (screenHeight - MIDDLE_FIFTH_END - MAX_EDGE_OCCLUSION * screenHeight);
-        }
-        
-        // Ensure the item is not too close to the top or bottom edge
-        if (newY < MAX_EDGE_OCCLUSION * screenHeight || 
-            newY > screenHeight - MAX_EDGE_OCCLUSION * screenHeight) {
-          continue;
-        }
-        
-        // Check if this position is far enough from other items
-        let isTooClose = false;
-        Object.values(existingPositions).forEach(pos => {
-          if (Math.abs(pos.y - newY) < MIN_VERTICAL_DISTANCE) {
-            isTooClose = true;
-          }
-        });
-        
-        if (!isTooClose) {
-          return newY;
-        }
-      }
-      
-      // If we couldn't find a valid position, return a safe fallback position
-      const random = Math.random();
-      if (random < 0.5) {
-        // Fallback to top section
-        return MAX_EDGE_OCCLUSION * screenHeight + Math.random() * (MIDDLE_FIFTH_START - 2 * MAX_EDGE_OCCLUSION * screenHeight);
-      } else {
-        // Fallback to bottom section
-        return MIDDLE_FIFTH_END + Math.random() * (screenHeight - MIDDLE_FIFTH_END - MAX_EDGE_OCCLUSION * screenHeight);
-      }
-    };
-
     // Initialize positions with random spacing and speeds
     const initialPositions: Record<string, Position> = {};
     const screenWidth = window.innerWidth;
@@ -120,25 +69,39 @@ const FloatingVideos: React.FC = () => {
     // Shuffle videos array to randomize speeds
     const shuffledVideos = [...VIDEOS].sort(() => Math.random() - 0.5);
     
-    // Calculate vertical sections for better distribution
-    const usableHeight = screenHeight * 0.8; // Use 80% of screen height
-    const verticalPadding = screenHeight * 0.1; // 10% padding top and bottom
-    const sectionHeight = usableHeight / shuffledVideos.length;
+    // Calculate vertical segments (5 equal segments)
+    const segmentHeight = screenHeight / 5;
+    // Determine how many videos go to top vs bottom
+    const topCount = Math.ceil(shuffledVideos.length / 2);
+    const bottomCount = shuffledVideos.length - topCount;
     
     shuffledVideos.forEach((video, i) => {
-      // Calculate vertical position within the video's section
-      // Add some randomness within the section but ensure they stay in their zones
-      const sectionStart = verticalPadding + (i * sectionHeight);
-      const randomOffset = Math.random() * (sectionHeight * 0.6); // 60% of section height for randomness
-      const yPosition = sectionStart + randomOffset;
+      let yPosition;
+      if (i < topCount) {
+        // Top segments (first 2 segments)
+        const topSpace = segmentHeight * 2;
+        const sectionHeight = topSpace / topCount;
+        const sectionStart = i * sectionHeight;
+        const randomOffset = Math.random() * (sectionHeight * 0.7);
+        yPosition = sectionStart + randomOffset;
+      } else {
+        // Bottom segments (last 2 segments)
+        const bottomSpace = segmentHeight * 2;
+        const sectionHeight = bottomSpace / bottomCount;
+        const bottomIndex = i - topCount;
+        const sectionStart = (segmentHeight * 3) + (bottomIndex * sectionHeight); // Start after middle segment
+        const randomOffset = Math.random() * (sectionHeight * 0.7);
+        yPosition = sectionStart + randomOffset;
+      }
       
       // Randomize speed between 0.6 and 1.4 pixels per frame
       const minSpeed = 0.6;
       const maxSpeed = 1.4;
       const speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
       
-      // Randomize starting position across screen width
-      const startX = -video.width - Math.random() * (screenWidth * 0.5);
+      // Distribute initial X positions across the entire screen width plus some offscreen
+      const totalWidth = screenWidth + video.width * 2; // Include offscreen areas
+      const startX = -video.width + (Math.random() * totalWidth);
       
       initialPositions[video.id] = {
         x: startX,
@@ -165,11 +128,30 @@ const FloatingVideos: React.FC = () => {
           const maxX = window.innerWidth + video.width;
 
           if (newX > maxX) {
-            // Reset position to start
+            // Reset position to start with a random vertical position in the same region (top or bottom)
+            const index = shuffledVideos.findIndex(v => v.id === id);
+            let newY;
+            if (index < topCount) {
+              // Top region
+              const topSpace = segmentHeight * 2;
+              const sectionHeight = topSpace / topCount;
+              const sectionStart = index * sectionHeight;
+              const randomOffset = Math.random() * (sectionHeight * 0.7);
+              newY = sectionStart + randomOffset;
+            } else {
+              // Bottom region
+              const bottomSpace = segmentHeight * 2;
+              const sectionHeight = bottomSpace / bottomCount;
+              const bottomIndex = index - topCount;
+              const sectionStart = (segmentHeight * 3) + (bottomIndex * sectionHeight);
+              const randomOffset = Math.random() * (sectionHeight * 0.7);
+              newY = sectionStart + randomOffset;
+            }
+
             newPositions[id] = {
               ...pos,
               x: -video.width,
-              y: getRandomPosition(newPositions)
+              y: newY
             };
           } else {
             newPositions[id] = {
@@ -182,7 +164,7 @@ const FloatingVideos: React.FC = () => {
 
         return needsUpdate ? newPositions : prevPositions;
       });
-
+      
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
