@@ -5,25 +5,67 @@ import { useEffect, useState } from 'react';
 
 // Component for randomly selecting a headshot
 const RandomHeadshot = ({ size = 256 }: { size?: number }) => {
-  const [headshot, setHeadshot] = useState('/images/headshot1.jpg');
+  const [headshot, setHeadshot] = useState('/images/headshots/IMG_8527_small.jpg');
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detect if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   useEffect(() => {
-    const headshots = [
+    const headshots = isMobile ? [
+      '/images/headshots/IMG_8527_small.jpg',
+      '/images/headshots/IMG_8530_small.jpg', 
+      '/images/headshots/IMG_8531_small.jpg'
+    ] : [
       '/images/headshots/IMG_8527.JPG',
       '/images/headshots/IMG_8530.JPG', 
       '/images/headshots/IMG_8531.JPG'
     ];
-    const randomIndex = Math.floor(Math.random() * headshots.length);
-    setHeadshot(headshots[randomIndex]);
-  }, []);
+    
+    // Preload all headshots
+    const preloadPromises = headshots.map(src => {
+      return new Promise<string>((resolve, reject) => {
+        const img = new window.Image();
+        img.src = src;
+        img.onload = () => resolve(src);
+        img.onerror = () => reject(new Error(`Failed to load ${src}`));
+      });
+    });
+    
+    // Once all are loaded, select a random one
+    Promise.allSettled(preloadPromises).then(results => {
+      const loadedImages = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => (result as PromiseFulfilledResult<string>).value);
+      
+      if (loadedImages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * loadedImages.length);
+        setHeadshot(loadedImages[randomIndex]);
+      }
+      setIsLoaded(true);
+    });
+  }, [isMobile]); // Re-run when device type changes
   
   return (
-    <img 
-      src={headshot}
-      alt="ian rios" 
-      className="object-cover w-full h-full"
-      style={{ objectPosition: 'center' }}
-    />
+    <div className="relative w-full h-full">
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-gray-300 animate-pulse rounded-full" />
+      )}
+      <img 
+        src={headshot}
+        alt="ian rios" 
+        className={`object-cover w-full h-full transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => setIsLoaded(true)}
+      />
+    </div>
   );
 };
 

@@ -52,10 +52,21 @@ export default function Work() {
   const autoScrollRef = useRef<number | null>(null);
   const lastScrollTimeRef = useRef<number>(0);
   const isScrollingUpRef = useRef<boolean>(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Auto-scroll functionality
+  // Detect if device is mobile
   useEffect(() => {
-    if (!isHovering && !isDragging && containerRef.current) {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-scroll functionality - disabled on mobile
+  useEffect(() => {
+    if (!isHovering && !isDragging && containerRef.current && !isMobile) {
       const scrollSpeed = 2; // pixels per frame
       const scrollInterval = 40; // ms between scroll updates
       let lastScrollTime = 0;
@@ -103,7 +114,7 @@ export default function Work() {
         cancelAnimationFrame(autoScrollRef.current);
       }
     };
-  }, [isHovering, isDragging]);
+  }, [isHovering, isDragging, isMobile]);
 
   // Handle mouse/touch events for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -115,10 +126,12 @@ export default function Work() {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    setStartY(e.touches[0].clientY);
-    if (containerRef.current) {
-      setScrollTop(containerRef.current.scrollTop);
+    if (isMobile) {
+      setIsDragging(true);
+      setStartY(e.touches[0].clientY);
+      if (containerRef.current) {
+        setScrollTop(containerRef.current.scrollTop);
+      }
     }
   };
 
@@ -132,8 +145,7 @@ export default function Work() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    // Note: removed e.preventDefault() as it causes issues on some mobile browsers
+    if (!isDragging || !isMobile) return;
     const y = e.touches[0].clientY;
     const walk = (startY - y) * 1.5; // Reduced scroll speed multiplier for smoother scrolling
     if (containerRef.current) {
@@ -208,17 +220,17 @@ export default function Work() {
       <div 
         ref={containerRef}
         className="work-carousel-container overflow-y-auto cursor-grab"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={stopDragging}
-        onMouseLeave={handleMouseLeave}
+        onMouseDown={!isMobile ? handleMouseDown : undefined}
+        onMouseMove={!isMobile ? handleMouseMove : undefined}
+        onMouseUp={!isMobile ? stopDragging : undefined}
+        onMouseLeave={!isMobile ? handleMouseLeave : undefined}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={stopDragging}
-        onMouseEnter={() => setIsHovering(true)}
+        onMouseEnter={() => !isMobile && setIsHovering(true)}
         style={{
           cursor: isDragging ? 'grabbing' : 'grab',
-          height: '75vh',
+          height: isMobile ? '85vh' : '75vh',
           scrollPaddingTop: '80px',
           scrollPaddingBottom: '80px',
           paddingTop: '80px',
@@ -236,17 +248,18 @@ export default function Work() {
               style={{ scrollMarginTop: '100px', scrollMarginBottom: '100px' }}
             >
               {item.company === "Niantic Labs" && (
-                <div className="flex flex-row items-center gap-0">
-                  <div className="relative w-48 h-52 flex-shrink-0 pr-0">
+                <div className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="relative w-48 h-52 flex-shrink-0">
                     <Image
                       src={item.imageUrl}
                       alt={item.company}
                       fill
                       className="object-contain object-left"
-                      priority
+                      priority={index === 0}
+                      loading={index === 0 ? 'eager' : 'lazy'}
                     />
                   </div>
-                  <div className="flex-grow ml-2">
+                  <div className="flex-grow text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
                     {item.acquisition && (
                       <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
@@ -269,7 +282,7 @@ export default function Work() {
                       priority
                     />
                   </div>
-                  <div className="w-full">
+                  <div className="w-full text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
                     {item.acquisition && (
                       <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
@@ -282,8 +295,8 @@ export default function Work() {
               )}
               
               {item.company === "Civil Maps" && (
-                <div className="flex flex-row-reverse items-start">
-                  <div className="relative w-36 h-28 flex-shrink-0 ml-4">
+                <div className="flex flex-col md:flex-row-reverse items-center gap-4">
+                  <div className="relative w-36 h-28 flex-shrink-0">
                     <Image
                       src={item.imageUrl}
                       alt={item.company}
@@ -292,7 +305,7 @@ export default function Work() {
                       priority
                     />
                   </div>
-                  <div className="flex-grow text-right">
+                  <div className="flex-grow text-center md:text-right">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
                     {item.acquisition && (
                       <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
@@ -305,7 +318,7 @@ export default function Work() {
               )}
               
               {item.company === "Magic Fund" && (
-                <div className="flex flex-row items-start">
+                <div className="flex flex-col md:flex-row items-center gap-4">
                   <div className="relative w-48 h-28 flex-shrink-0">
                     <Image
                       src={item.imageUrl}
@@ -315,7 +328,7 @@ export default function Work() {
                       priority
                     />
                   </div>
-                  <div className="ml-4 flex-grow">
+                  <div className="flex-grow text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
                     {item.acquisition && (
                       <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
@@ -328,11 +341,13 @@ export default function Work() {
           ))}
         </div>
         
-        <div className="absolute bottom-8 text-center w-full pointer-events-none">
-          <p className="text-sm text-white/70 text-shadow bg-black/20 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
-            Drag to scroll
-          </p>
-        </div>
+        {!isMobile && (
+          <div className="absolute bottom-8 text-center w-full pointer-events-none">
+            <p className="text-sm text-white/70 text-shadow bg-black/20 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
+              Drag to scroll
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

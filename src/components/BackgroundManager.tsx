@@ -8,36 +8,40 @@ import RandomBackground from './RandomBackground';
 // Map paths to background images - using full-size images for display
 const pathToBackground = {
   '/': [
-    '/images/backgrounds/bg0.png',
-    '/images/backgrounds/bg1.png',
-    '/images/backgrounds/bg2.png',
-    '/images/backgrounds/bg3.png'
+    '/images/backgrounds/bg0_mobile.png',
+    '/images/backgrounds/bg1_mobile.png',
+    '/images/backgrounds/bg2_mobile.png',
+    '/images/backgrounds/bg3_mobile.png'
   ],
   '/work': [
-    '/images/backgrounds/bg0.png',
-    '/images/backgrounds/bg1.png',
-    '/images/backgrounds/bg2.png', 
-    '/images/backgrounds/bg3.png'
+    '/images/backgrounds/bg0_mobile.png',
+    '/images/backgrounds/bg1_mobile.png',
+    '/images/backgrounds/bg2_mobile.png', 
+    '/images/backgrounds/bg3_mobile.png'
   ],
   '/contact': [
-    '/images/backgrounds/bg0.png',
-    '/images/backgrounds/bg2.png',
-    '/images/backgrounds/bg3.png'
+    '/images/backgrounds/bg0_mobile.png',
+    '/images/backgrounds/bg2_mobile.png',
+    '/images/backgrounds/bg3_mobile.png'
   ],
   '/writing': [
-    '/images/backgrounds/bg0.png',
-    '/images/backgrounds/bg1.png'
+    '/images/backgrounds/bg0_mobile.png',
+    '/images/backgrounds/bg1_mobile.png'
   ]
 };
 
 // Pre-load background images with lazy loading
-const preloadBackgroundImages = () => {
+const preloadBackgroundImages = (isMobile: boolean) => {
   if (typeof window === 'undefined') return;
 
   // Get all unique image paths
   const allImages = new Set<string>();
   Object.values(pathToBackground).forEach(paths => {
-    paths.forEach(path => allImages.add(path));
+    paths.forEach(path => {
+      // Use mobile versions for mobile devices
+      const imagePath = isMobile ? path : path.replace('_mobile.png', '.png');
+      allImages.add(imagePath);
+    });
   });
   
   // Create an Intersection Observer for lazy loading
@@ -76,19 +80,19 @@ export default function BackgroundManager() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Preload background images once on component mount
+  // Preload background images when device type changes
   useEffect(() => {
-    preloadBackgroundImages();
-  }, []);
+    preloadBackgroundImages(isMobile);
+  }, [isMobile]);
   
   // Ensure we always have background images for the current path
   const getCurrentBackgroundImages = () => {
     if (pathname && pathname in pathToBackground) {
       const images = pathToBackground[pathname as keyof typeof pathToBackground];
       // On mobile, only use the first image to reduce memory usage
-      return isMobile ? [images[0]] : images;
+      return isMobile ? [images[0]] : images.map(img => img.replace('_mobile.png', '.png'));
     }
-    return ['/images/backgrounds/bg0.png', '/images/backgrounds/bg1.png'];
+    return ['/images/backgrounds/bg0_mobile.png', '/images/backgrounds/bg1_mobile.png'];
   };
 
   return (

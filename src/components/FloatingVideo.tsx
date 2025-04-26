@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { VideoConfig, Position } from './types';
 
 interface FloatingVideoProps {
-  videoId: string;
-  startTime: number;
-  endTime: number;
+  video: VideoConfig;
+  position: Position;
 }
 
 interface SafeZone {
@@ -15,9 +15,14 @@ interface SafeZone {
   height: number;
 }
 
-const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoId, startTime, endTime }) => {
-  const videoRef = useRef<HTMLIFrameElement>(null);
+const FloatingVideo = ({ video, position }: FloatingVideoProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const getVideoUrl = (video: VideoConfig) => {
+    if (video.id === 'meshed_video') {
+      return '/videos/meshed.mp4';
+    }
+    return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&start=${video.startTime}&end=${video.endTime}&controls=0&showinfo=0&rel=0&modestbranding=1&version=3`;
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -50,37 +55,73 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoId, startTime, endTi
     container.style.animation = 'float 40s ease-in-out infinite';
   }, []);
 
+  if (!position) return null;
+
   return (
     <div
       ref={containerRef}
-      className="fixed w-[400px] pointer-events-none overflow-hidden"
+      className="fixed pointer-events-none overflow-hidden floating-element"
       style={{
-        transform: 'translate(-50%, -50%)',
+        width: video.width,
+        height: video.height,
+        transform: `translate(${position.x}px, ${position.y}px)`,
         filter: 'blur(0.5px)',
-        opacity: 0.7,
-        height: '160px', // Smaller height for less intrusive appearance
+        opacity: position.opacity * 0.85,
+        transition: 'opacity 0.5s ease-in-out',
       }}
     >
-      <div 
-        style={{
-          width: '100%',
-          height: '400px', // Taller container for scaling
-          transform: 'scale(1.3) translate(-15%, -15%)', // Scale up and shift to show more of the right side
-        }}
-      >
-        <iframe
-          ref={videoRef}
-          width="100%"
-          height="100%"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&start=50&end=180&controls=0&showinfo=0&rel=0&modestbranding=1&version=3`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
+      {video.imageUrl ? (
+        <img
+          src={video.imageUrl}
+          alt="Floating element"
           style={{
-            border: 'none',
-            borderRadius: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '8px',
           }}
         />
-      </div>
+      ) : video.id === 'meshed_video' ? (
+        <video
+          src={getVideoUrl(video)}
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '8px',
+          }}
+        />
+      ) : video.shouldCrop ? (
+        <div 
+          style={{
+            width: '100%',
+            height: '400px',
+            transform: `scale(${video.cropScale}) translate(${video.cropTranslate?.x}%, ${video.cropTranslate?.y}%)`,
+          }}
+        >
+          <iframe
+            width="100%"
+            height="100%"
+            src={getVideoUrl(video)}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ border: 'none' }}
+          />
+        </div>
+      ) : (
+        <iframe
+          width="100%"
+          height="100%"
+          src={getVideoUrl(video)}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          style={{ border: 'none' }}
+        />
+      )}
     </div>
   );
 };

@@ -1,26 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-
-interface VideoConfig {
-  id: string;
-  videoId?: string;
-  imageUrl?: string;
-  startTime?: number;
-  endTime?: number;
-  width: number;
-  height: number;
-  shouldCrop?: boolean;
-  cropScale?: number;
-  cropTranslate?: { x: number; y: number };
-}
-
-interface Position {
-  x: number;
-  y: number;
-  speed: number;
-  opacity: number;
-}
+import FloatingVideo from './FloatingVideo';
+import { VideoConfig, Position } from './types';
 
 // Video configurations
 const VIDEOS: VideoConfig[] = [
@@ -75,7 +57,7 @@ const FloatingVideos: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Main animation logic
+  // Main animation logic - disabled on mobile
   useEffect(() => {
     if (typeof window === 'undefined' || isMobile) return;
 
@@ -158,48 +140,45 @@ const FloatingVideos: React.FC = () => {
     });
 
     setPositions(initialPositions);
-    
+
+    // Animation loop
     const animate = () => {
-      setPositions(prev => {
-        const next = { ...prev };
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        
-        VIDEOS.forEach(video => {
-          const pos = next[video.id];
-          if (!pos) return;
-          
-          // Move right at constant speed
-          pos.x += pos.speed;
-          
-          // Handle fade out and reset
-          if (pos.x > screenWidth - video.width) {
-            // Start fading out
-            pos.opacity = Math.max(0, 1 - (pos.x - (screenWidth - video.width)) / video.width);
-            
-            // Reset position when fully faded
-            if (pos.opacity <= 0) {
-              pos.x = -video.width;
-              pos.opacity = 0;
-              // Generate new random position with path avoidance
-              pos.y = getRandomPosition(next);
-            }
-          } else if (pos.x < 0) {
-            // Fade in from left
-            pos.opacity = Math.min(1, (pos.x + video.width) / video.width);
+      setPositions(prevPositions => {
+        const newPositions = { ...prevPositions };
+        let needsUpdate = false;
+
+        Object.entries(newPositions).forEach(([id, pos]) => {
+          const video = VIDEOS.find(v => v.id === id);
+          if (!video) return;
+
+          // Update position
+          const newX = pos.x + pos.speed;
+          const maxX = window.innerWidth + video.width;
+
+          if (newX > maxX) {
+            // Reset position to start
+            newPositions[id] = {
+              ...pos,
+              x: -video.width,
+              y: getRandomPosition(newPositions)
+            };
           } else {
-            // Full opacity in middle
-            pos.opacity = 1;
+            newPositions[id] = {
+              ...pos,
+              x: newX
+            };
           }
+          needsUpdate = true;
         });
-        
-        return next;
+
+        return needsUpdate ? newPositions : prevPositions;
       });
-      
+
       animationFrameRef.current = requestAnimationFrame(animate);
     };
-    
-    animate();
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -207,7 +186,7 @@ const FloatingVideos: React.FC = () => {
     };
   }, [isMobile]);
 
-  // Don't render on mobile
+  // Don't render anything on mobile
   if (isMobile) return null;
 
   const getVideoUrl = (video: VideoConfig) => {
@@ -221,80 +200,15 @@ const FloatingVideos: React.FC = () => {
   };
 
   return (
-    <>
-      {VIDEOS.map(video => {
-        const position = positions[video.id];
-        if (!position) return null;
-
-        return (
-          <div
-            key={video.id}
-            className="fixed pointer-events-none overflow-hidden floating-element"
-            style={{
-              width: video.width,
-              height: video.height,
-              transform: `translate(${position.x}px, ${position.y}px)`,
-              filter: 'blur(0.5px)',
-              opacity: position.opacity * 0.85,
-              transition: 'opacity 0.5s ease-in-out',
-            }}
-          >
-            {video.imageUrl ? (
-              <img
-                src={video.imageUrl}
-                alt="Floating element"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                }}
-              />
-            ) : video.id === 'meshed_video' ? (
-              <video
-                src={getVideoUrl(video)}
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                }}
-              />
-            ) : video.shouldCrop ? (
-              <div 
-                style={{
-                  width: '100%',
-                  height: '400px',
-                  transform: `scale(${video.cropScale}) translate(${video.cropTranslate?.x}%, ${video.cropTranslate?.y}%)`,
-                }}
-              >
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={getVideoUrl(video)}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{ border: 'none' }}
-                />
-              </div>
-            ) : (
-              <iframe
-                width="100%"
-                height="100%"
-                src={getVideoUrl(video)}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{ border: 'none' }}
-              />
-            )}
-          </div>
-        );
-      })}
-    </>
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {VIDEOS.map(video => (
+        <FloatingVideo
+          key={video.id}
+          video={video}
+          position={positions[video.id]}
+        />
+      ))}
+    </div>
   );
 };
 
