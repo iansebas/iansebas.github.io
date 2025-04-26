@@ -146,3 +146,40 @@ a {
     transform: translate(-50%, -50%) translate(0, 0);
   }
 }
+
+/* Text protection */
+h1, h2, h3, h4, h5, h6, p, a {
+  position: relative;
+  z-index: 1;
+}
+
+h1::before, h2::before, h3::before, h4::before, h5::before, h6::before, p::before, a::before {
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  z-index: -1;
+  pointer-events: none;
+}
+
+h1:hover::before, h2:hover::before, h3:hover::before, 
+h4:hover::before, h5:hover::before, h6:hover::before, 
+p:hover::before, a:hover::before {
+  opacity: 1;
+}
+
+/* Floating elements hover effect */
+.floating-element {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.floating-element:hover {
+  opacity: 0.8 !important;
+  transform: scale(1.05);
+}
