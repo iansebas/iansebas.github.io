@@ -32,10 +32,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${poppins.variable} font-sans`} suppressHydrationWarning={true}>
         <div className="relative flex flex-col md:flex-row min-h-screen overflow-hidden">
-          {/* Background images */}
+          {/* Background image */}
           <BackgroundManager />
           
-          {/* Floating YouTube videos */}
+          {/* Floating videos */}
           <FloatingVideos />
           
           {/* Fixed background overlay - reduced opacity for better image visibility */}

@@ -112,27 +112,36 @@ const FloatingVideos: React.FC = () => {
       }
     };
 
-    // Initialize positions with even spacing
+    // Initialize positions with random spacing and speeds
     const initialPositions: Record<string, Position> = {};
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     
-    VIDEOS.forEach((video, i) => {
-      // Set initial position with path avoidance
-      const yPosition = getRandomPosition(initialPositions);
+    // Shuffle videos array to randomize speeds
+    const shuffledVideos = [...VIDEOS].sort(() => Math.random() - 0.5);
+    
+    // Calculate vertical sections for better distribution
+    const usableHeight = screenHeight * 0.8; // Use 80% of screen height
+    const verticalPadding = screenHeight * 0.1; // 10% padding top and bottom
+    const sectionHeight = usableHeight / shuffledVideos.length;
+    
+    shuffledVideos.forEach((video, i) => {
+      // Calculate vertical position within the video's section
+      // Add some randomness within the section but ensure they stay in their zones
+      const sectionStart = verticalPadding + (i * sectionHeight);
+      const randomOffset = Math.random() * (sectionHeight * 0.6); // 60% of section height for randomness
+      const yPosition = sectionStart + randomOffset;
       
-      // Set slightly different speeds for each video
-      const baseSpeed = 0.3; // Base speed (pixels per frame)
-      const speedVariation = 0.1; // Maximum speed difference
-      let speed = baseSpeed + (i * speedVariation / VIDEOS.length);
+      // Randomize speed between 0.6 and 1.4 pixels per frame
+      const minSpeed = 0.6;
+      const maxSpeed = 1.4;
+      const speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
       
-      // Special case for meshed video - run at 1/4 speed
-      if (video.id === 'meshed_video') {
-        speed = speed * 0.25;
-      }
+      // Randomize starting position across screen width
+      const startX = -video.width - Math.random() * (screenWidth * 0.5);
       
       initialPositions[video.id] = {
-        x: -video.width + (i * screenWidth / VIDEOS.length), // Start evenly spaced
+        x: startX,
         y: yPosition,
         speed,
         opacity: 1

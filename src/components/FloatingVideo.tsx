@@ -19,7 +19,7 @@ const FloatingVideo = ({ video, position }: FloatingVideoProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const getVideoUrl = (video: VideoConfig) => {
     if (video.id === 'meshed_video') {
-      return '/videos/meshed.mp4';
+      return '/videos/meshed.mov';
     }
     return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&start=${video.startTime}&end=${video.endTime}&controls=0&showinfo=0&rel=0&modestbranding=1&version=3`;
   };
