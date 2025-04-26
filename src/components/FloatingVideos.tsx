@@ -66,18 +66,28 @@ const FloatingVideos: React.FC = () => {
     const screenHeight = window.innerHeight;
 
     if (isMobile) {
-      // On mobile: only 2 videos, fixed vertical lanes, scaled positions
-      const mobileScale = 0.7;
-      const mobileVideos = VIDEOS.slice(0, 2);
-      const lanePositions = [screenHeight / 3, (2 * screenHeight) / 3];
+      // On mobile: use ALL videos with strict vertical spacing
+      const mobileScale = 0.6; // Even smaller on mobile
+      const mobileVideos = VIDEOS; // Use all videos
+      
+      // Create 4 evenly-spaced lanes - more spacing between them
+      const totalVideos = mobileVideos.length;
+      const lanePositions = Array(totalVideos).fill(0).map((_, i) => 
+        (i + 1) * (screenHeight / (totalVideos + 1))
+      );
+      
       mobileVideos.forEach((video, i) => {
         const widthScaled = video.width * mobileScale;
         const heightScaled = video.height * mobileScale;
         const yPosition = lanePositions[i] - heightScaled / 2;
-        const minSpeed = 0.4;
-        const maxSpeed = 0.8;
+        
+        // Stagger the horizontal positions so they don't start at the same x
+        const positionOffset = i * (screenWidth / 4);
+        const minSpeed = 0.3 + (i * 0.1); // Different speeds for each video
+        const maxSpeed = 0.6 + (i * 0.1);
         const speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
-        const startX = -widthScaled + Math.random() * (screenWidth + widthScaled * 2);
+        const startX = positionOffset - widthScaled;
+        
         initialPositions[video.id] = {
           x: startX,
           y: yPosition,
@@ -134,18 +144,38 @@ const FloatingVideos: React.FC = () => {
         let needsUpdate = false;
 
         if (isMobile) {
-          const mobileScale = 0.7;
-          const mobileVideos = VIDEOS.slice(0, 2);
-          mobileVideos.forEach(video => {
+          const mobileScale = 0.6;
+          const mobileVideos = VIDEOS; // Use all videos
+          
+          // Create lanes again in animation loop to ensure consistency
+          const totalVideos = mobileVideos.length;
+          const lanePositions = Array(totalVideos).fill(0).map((_, i) => 
+            (i + 1) * (window.innerHeight / (totalVideos + 1))
+          );
+          
+          mobileVideos.forEach((video, i) => {
             const pos = newPositions[video.id];
             if (!pos) return;
+            
             const widthScaled = video.width * mobileScale;
+            const heightScaled = video.height * mobileScale;
             const newX = pos.x + pos.speed;
-            const maxX = window.innerWidth + widthScaled;
+            const maxX = window.innerWidth;
+            
             if (newX > maxX) {
-              newPositions[video.id] = { ...pos, x: -widthScaled };
+              // Reset to left side while strictly maintaining lane position
+              newPositions[video.id] = { 
+                ...pos, 
+                x: -widthScaled,
+                y: lanePositions[i] - heightScaled / 2
+              };
             } else {
-              newPositions[video.id] = { ...pos, x: newX };
+              // Always enforce correct Y position each frame
+              newPositions[video.id] = { 
+                ...pos, 
+                x: newX,
+                y: lanePositions[i] - heightScaled / 2
+              };
             }
             needsUpdate = true;
           });
@@ -197,6 +227,7 @@ const FloatingVideos: React.FC = () => {
         }
         return needsUpdate ? newPositions : prevPositions;
       });
+      
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
