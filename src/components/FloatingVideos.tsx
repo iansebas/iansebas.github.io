@@ -66,15 +66,15 @@ const FloatingVideos: React.FC = () => {
     const screenHeight = window.innerHeight;
 
     if (isMobile) {
-      // On mobile: assign each video a unique vertical lane, randomize horizontal position and speed
-      const mobileVideos = VIDEOS.slice(0, 3); // Optionally show fewer videos on mobile
-      const laneHeight = screenHeight / (mobileVideos.length + 1);
+      // On mobile: assign each video a unique fixed vertical lane, randomize horizontal position and speed
+      const mobileVideos = VIDEOS.slice(0, 2); // Only 2 videos for clarity
+      const lanePositions = [screenHeight / 3, (2 * screenHeight) / 3];
       mobileVideos.forEach((video, i) => {
-        const yPosition = laneHeight * (i + 1) - video.height / 2;
+        const yPosition = lanePositions[i] - (video.height * 0.6) / 2; // scale down
         const minSpeed = 0.4;
         const maxSpeed = 0.8;
         const speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
-        const startX = -video.width + (Math.random() * (screenWidth + video.width * 2));
+        const startX = -video.width * 0.6 + (Math.random() * (screenWidth + video.width * 1.2));
         initialPositions[video.id] = {
           x: startX,
           y: yPosition,
@@ -135,22 +135,25 @@ const FloatingVideos: React.FC = () => {
 
         if (isMobile) {
           // Only update mobileVideos
-          const mobileVideos = VIDEOS.slice(0, 3);
-          mobileVideos.forEach(video => {
+          const mobileVideos = VIDEOS.slice(0, 2);
+          const lanePositions = [window.innerHeight / 3, (2 * window.innerHeight) / 3];
+          mobileVideos.forEach((video, i) => {
             const pos = newPositions[video.id];
             if (!pos) return;
             const newX = pos.x + pos.speed;
-            const maxX = window.innerWidth + video.width;
+            const maxX = window.innerWidth + video.width * 0.6;
             if (newX > maxX) {
               // Reset to left, keep same vertical lane
               newPositions[video.id] = {
                 ...pos,
-                x: -video.width
+                x: -video.width * 0.6,
+                y: lanePositions[i] - (video.height * 0.6) / 2
               };
             } else {
               newPositions[video.id] = {
                 ...pos,
-                x: newX
+                x: newX,
+                y: lanePositions[i] - (video.height * 0.6) / 2
               };
             }
             needsUpdate = true;
