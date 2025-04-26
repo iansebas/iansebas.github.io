@@ -59,7 +59,7 @@ const RandomHeadshot = () => {
 };
 
 const navItems = [
-  { name: 'about', path: '/' },
+  { name: 'about', path: '/about' },
   { name: 'work', path: '/work' },
   { name: 'writing', path: 'https://unrulyabstractions.substack.com/', external: true },
   { name: 'contact', path: '/contact' },
@@ -112,11 +112,15 @@ const Sidebar = () => {
       )}>
         <div className="flex flex-col h-full px-8 py-10">
           <div className="mb-4">
-            <div className="relative w-20 h-20 mb-4 mx-auto rounded-full overflow-hidden border-2 border-white/70 shadow-lg">
-              <RandomHeadshot />
-            </div>
-            
-            <h1 className="text-2xl font-bold text-white text-center text-shadow">ian rios</h1>
+            <Link href="/" passHref>
+              <div className="cursor-pointer">
+                <div className="relative w-20 h-20 mb-4 mx-auto rounded-full overflow-hidden border-2 border-white/70 shadow-lg">
+                  <RandomHeadshot />
+                </div>
+                
+                <h1 className="text-2xl font-bold text-white text-center text-shadow">ian rios</h1>
+              </div>
+            </Link>
             
             <div className="h-10 relative overflow-hidden">
               <AnimatePresence mode="wait">

@@ -6,6 +6,7 @@ import { VideoConfig, Position } from './types';
 interface FloatingVideoProps {
   video: VideoConfig;
   position: Position;
+  isMobile: boolean;
 }
 
 interface SafeZone {
@@ -15,7 +16,7 @@ interface SafeZone {
   height: number;
 }
 
-const FloatingVideo = ({ video, position }: FloatingVideoProps) => {
+const FloatingVideo = ({ video, position, isMobile }: FloatingVideoProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const getVideoUrl = (video: VideoConfig) => {
     if (video.id === 'meshed_video') {
@@ -28,7 +29,7 @@ const FloatingVideo = ({ video, position }: FloatingVideoProps) => {
     const container = containerRef.current;
     if (!container || typeof window === 'undefined') return;
 
-    const SIDEBAR_WIDTH = 256; // 16rem = 256px
+    const SIDEBAR_WIDTH = isMobile ? 0 : 256; // 16rem = 256px
 
     // Calculate safe zones (right side of main content)
     const safeZones: SafeZone[] = [
@@ -53,17 +54,22 @@ const FloatingVideo = ({ video, position }: FloatingVideoProps) => {
 
     // Add subtle floating animation
     container.style.animation = 'float 40s ease-in-out infinite';
-  }, []);
+  }, [isMobile]);
 
   if (!position) return null;
+
+  // Scale down videos on mobile
+  const scale = isMobile ? 0.7 : 1;
+  const width = video.width * scale;
+  const height = video.height * scale;
 
   return (
     <div
       ref={containerRef}
       className="fixed pointer-events-none overflow-hidden floating-element"
       style={{
-        width: video.width,
-        height: video.height,
+        width,
+        height,
         transform: `translate(${position.x}px, ${position.y}px)`,
         filter: 'blur(0.5px)',
         opacity: position.opacity * 0.85,

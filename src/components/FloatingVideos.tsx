@@ -57,9 +57,9 @@ const FloatingVideos: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Main animation logic - disabled on mobile
+  // Main animation logic
   useEffect(() => {
-    if (typeof window === 'undefined' || isMobile) return;
+    if (typeof window === 'undefined') return;
 
     // Initialize positions with random spacing and speeds
     const initialPositions: Record<string, Position> = {};
@@ -177,9 +177,6 @@ const FloatingVideos: React.FC = () => {
     };
   }, [isMobile]);
 
-  // Don't render anything on mobile
-  if (isMobile) return null;
-
   const getVideoUrl = (video: VideoConfig) => {
     if (video.id === 'aws_video') {
       return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&controls=0&showinfo=0&modestbranding=1&start=${video.startTime}&end=${video.endTime}`;
@@ -197,6 +194,7 @@ const FloatingVideos: React.FC = () => {
           key={video.id}
           video={video}
           position={positions[video.id]}
+          isMobile={isMobile}
         />
       ))}
     </div>
