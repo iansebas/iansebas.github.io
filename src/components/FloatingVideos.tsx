@@ -133,52 +133,76 @@ const FloatingVideos: React.FC = () => {
         const newPositions = { ...prevPositions };
         let needsUpdate = false;
 
-        Object.entries(newPositions).forEach(([id, pos]) => {
-          const video = VIDEOS.find(v => v.id === id);
-          if (!video) return;
-
-          // Update position
-          const newX = pos.x + pos.speed;
-          const maxX = window.innerWidth + video.width;
-
-          if (newX > maxX) {
-            // Reset position to start with a random vertical position in the same region (top or bottom)
-            const index = shuffledVideos.findIndex(v => v.id === id);
-            let newY;
-            if (index < topCount) {
-              // Top region
-              const topSpace = segmentHeight * 2;
-              const sectionHeight = topSpace / topCount;
-              const sectionStart = index * sectionHeight;
-              const randomOffset = Math.random() * (sectionHeight * 0.7);
-              newY = sectionStart + randomOffset;
+        if (isMobile) {
+          // Only update mobileVideos
+          const mobileVideos = VIDEOS.slice(0, 3);
+          mobileVideos.forEach(video => {
+            const pos = newPositions[video.id];
+            if (!pos) return;
+            const newX = pos.x + pos.speed;
+            const maxX = window.innerWidth + video.width;
+            if (newX > maxX) {
+              // Reset to left, keep same vertical lane
+              newPositions[video.id] = {
+                ...pos,
+                x: -video.width
+              };
             } else {
-              // Bottom region
-              const bottomSpace = segmentHeight * 2;
-              const sectionHeight = bottomSpace / bottomCount;
-              const bottomIndex = index - topCount;
-              const sectionStart = (segmentHeight * 3) + (bottomIndex * sectionHeight);
-              const randomOffset = Math.random() * (sectionHeight * 0.7);
-              newY = sectionStart + randomOffset;
+              newPositions[video.id] = {
+                ...pos,
+                x: newX
+              };
             }
-
-            newPositions[id] = {
-              ...pos,
-              x: -video.width,
-              y: newY
-            };
-          } else {
-            newPositions[id] = {
-              ...pos,
-              x: newX
-            };
-          }
-          needsUpdate = true;
-        });
-
+            needsUpdate = true;
+          });
+        } else {
+          // Desktop logic (unchanged)
+          const shuffledVideos = [...VIDEOS].sort(() => Math.random() - 0.5);
+          const screenHeight = window.innerHeight;
+          const segmentHeight = screenHeight / 5;
+          const topCount = Math.ceil(shuffledVideos.length / 2);
+          const bottomCount = shuffledVideos.length - topCount;
+          Object.entries(newPositions).forEach(([id, pos]) => {
+            const video = VIDEOS.find(v => v.id === id);
+            if (!video) return;
+            const newX = pos.x + pos.speed;
+            const maxX = window.innerWidth + video.width;
+            if (newX > maxX) {
+              // Reset position to start with a random vertical position in the same region (top or bottom)
+              const index = shuffledVideos.findIndex(v => v.id === id);
+              let newY;
+              if (index < topCount) {
+                // Top region
+                const topSpace = segmentHeight * 2;
+                const sectionHeight = topSpace / topCount;
+                const sectionStart = index * sectionHeight;
+                const randomOffset = Math.random() * (sectionHeight * 0.7);
+                newY = sectionStart + randomOffset;
+              } else {
+                // Bottom region
+                const bottomSpace = segmentHeight * 2;
+                const sectionHeight = bottomSpace / bottomCount;
+                const bottomIndex = index - topCount;
+                const sectionStart = (segmentHeight * 3) + (bottomIndex * sectionHeight);
+                const randomOffset = Math.random() * (sectionHeight * 0.7);
+                newY = sectionStart + randomOffset;
+              }
+              newPositions[id] = {
+                ...pos,
+                x: -video.width,
+                y: newY
+              };
+            } else {
+              newPositions[id] = {
+                ...pos,
+                x: newX
+              };
+            }
+            needsUpdate = true;
+          });
+        }
         return needsUpdate ? newPositions : prevPositions;
       });
-      
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
