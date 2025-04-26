@@ -18,15 +18,15 @@ interface VideoConfig {
 interface Position {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
+  speed: number;
+  opacity: number;
 }
 
 // Video configurations
 const VIDEOS: VideoConfig[] = [
   {
     id: 'aws_video',
-    videoId: 'KS12GgvBUIE', // AWS presentation video
+    videoId: 'KS12GgvBUIE',
     startTime: 50,
     endTime: 180,
     width: 360,
@@ -37,7 +37,7 @@ const VIDEOS: VideoConfig[] = [
   },
   {
     id: 'eightwall_video',
-    videoId: 'yNbjrSomA-M', // 8th Wall video
+    videoId: 'yNbjrSomA-M',
     startTime: 7,
     endTime: 10,
     width: 270,
@@ -62,42 +62,11 @@ const VIDEOS: VideoConfig[] = [
 
 const FloatingVideos: React.FC = () => {
   const [positions, setPositions] = useState<Record<string, Position>>({});
-  const [opacity, setOpacity] = useState<Record<string, number>>({});
   const animationFrameRef = useRef<number>();
-  const frameCountRef = useRef(0);
-  const stuckTimeRef = useRef<Record<string, number>>({});
-  const behindTextTimeRef = useRef<Record<string, number>>({});
-  const lastFadeTimeRef = useRef<Record<string, number>>({});
-  const forceMoveTimerRef = useRef<Record<string, number>>({});
-  const SIDEBAR_WIDTH = 256;
   const [isMobile, setIsMobile] = useState(false);
-  const [textElements, setTextElements] = useState<DOMRect[]>([]);
 
-  // Initialize opacity state
+  // Mobile detection
   useEffect(() => {
-    const initialOpacity: Record<string, number> = {};
-    const initialStuckTime: Record<string, number> = {};
-    const initialBehindTextTime: Record<string, number> = {};
-    const initialLastFadeTime: Record<string, number> = {};
-    const initialForceMoveTimer: Record<string, number> = {};
-    
-    VIDEOS.forEach(video => {
-      initialOpacity[video.id] = 0.5;
-      initialStuckTime[video.id] = 0;
-      initialBehindTextTime[video.id] = 0;
-      initialLastFadeTime[video.id] = 0;
-      initialForceMoveTimer[video.id] = Math.floor(Math.random() * 200);
-    });
-    
-    setOpacity(initialOpacity);
-    stuckTimeRef.current = initialStuckTime;
-    behindTextTimeRef.current = initialBehindTextTime;
-    lastFadeTimeRef.current = initialLastFadeTime;
-    forceMoveTimerRef.current = initialForceMoveTimer;
-  }, []);
-
-  useEffect(() => {
-    // Check if device is mobile
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
@@ -106,205 +75,122 @@ const FloatingVideos: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Function to detect text elements and update their positions
-  useEffect(() => {
-    const updateTextElements = () => {
-      // Get all text elements that need protection
-      const elements = document.querySelectorAll('h1, h2, h3, p, a');
-      const rects = Array.from(elements).map(el => el.getBoundingClientRect());
-      setTextElements(rects);
-    };
-
-    // Update text elements positions initially and on scroll/resize
-    updateTextElements();
-    window.addEventListener('scroll', updateTextElements);
-    window.addEventListener('resize', updateTextElements);
-
-    return () => {
-      window.removeEventListener('scroll', updateTextElements);
-      window.removeEventListener('resize', updateTextElements);
-    };
-  }, []);
-
+  // Main animation logic
   useEffect(() => {
     if (typeof window === 'undefined' || isMobile) return;
 
-    const initialPositions: Record<string, Position> = {};
-    
-    // Calculate available space
-    const availableWidth = window.innerWidth;
-    const availableHeight = window.innerHeight - 100;
+    // Function to generate random position with bias towards top or bottom
+    const getRandomPosition = (existingPositions: Record<string, Position> = {}) => {
+      const screenHeight = window.innerHeight;
+      const MIN_VERTICAL_DISTANCE = screenHeight * 0.15; // Minimum distance between items
+      const MAX_EDGE_OCCLUSION = 0.2; // Maximum 20% occlusion by screen edges
+      const MIDDLE_FIFTH_START = screenHeight * 0.4; // Start of middle fifth
+      const MIDDLE_FIFTH_END = screenHeight * 0.6; // End of middle fifth
+      
+      // Try up to 10 times to find a valid position
+      for (let attempt = 0; attempt < 10; attempt++) {
+        const random = Math.random();
+        let newY;
+        
+        if (random < 0.5) {
+          // 50% chance to be in top section (above middle fifth)
+          newY = Math.random() * (MIDDLE_FIFTH_START - MAX_EDGE_OCCLUSION * screenHeight);
+        } else {
+          // 50% chance to be in bottom section (below middle fifth)
+          newY = MIDDLE_FIFTH_END + Math.random() * (screenHeight - MIDDLE_FIFTH_END - MAX_EDGE_OCCLUSION * screenHeight);
+        }
+        
+        // Ensure the item is not too close to the top or bottom edge
+        if (newY < MAX_EDGE_OCCLUSION * screenHeight || 
+            newY > screenHeight - MAX_EDGE_OCCLUSION * screenHeight) {
+          continue;
+        }
+        
+        // Check if this position is far enough from other items
+        let isTooClose = false;
+        Object.values(existingPositions).forEach(pos => {
+          if (Math.abs(pos.y - newY) < MIN_VERTICAL_DISTANCE) {
+            isTooClose = true;
+          }
+        });
+        
+        if (!isTooClose) {
+          return newY;
+        }
+      }
+      
+      // If we couldn't find a valid position, return a safe fallback position
+      const random = Math.random();
+      if (random < 0.5) {
+        // Fallback to top section
+        return MAX_EDGE_OCCLUSION * screenHeight + Math.random() * (MIDDLE_FIFTH_START - 2 * MAX_EDGE_OCCLUSION * screenHeight);
+      } else {
+        // Fallback to bottom section
+        return MIDDLE_FIFTH_END + Math.random() * (screenHeight - MIDDLE_FIFTH_END - MAX_EDGE_OCCLUSION * screenHeight);
+      }
+    };
 
-    // Place videos with initial positions across the entire width
-    VIDEOS.forEach((video, index) => {
-      // Distribute evenly including behind sidebar
-      const xPosition = (index / VIDEOS.length) * availableWidth;
+    // Initialize positions with even spacing
+    const initialPositions: Record<string, Position> = {};
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    VIDEOS.forEach((video, i) => {
+      // Set initial position with path avoidance
+      const yPosition = getRandomPosition(initialPositions);
+      
+      // Set slightly different speeds for each video
+      const baseSpeed = 0.3; // Base speed (pixels per frame)
+      const speedVariation = 0.1; // Maximum speed difference
+      let speed = baseSpeed + (i * speedVariation / VIDEOS.length);
+      
+      // Special case for meshed video - run at 1/4 speed
+      if (video.id === 'meshed_video') {
+        speed = speed * 0.25;
+      }
       
       initialPositions[video.id] = {
-        x: xPosition,
-        y: availableHeight * Math.random(),
-        vx: 0.05 * (Math.random() > 0.5 ? 1 : -1), // Faster initial velocity
-        vy: 0.04 * (Math.random() > 0.5 ? 1 : -1)  // Faster initial velocity
+        x: -video.width + (i * screenWidth / VIDEOS.length), // Start evenly spaced
+        y: yPosition,
+        speed,
+        opacity: 1
       };
     });
 
     setPositions(initialPositions);
     
     const animate = () => {
-      frameCountRef.current += 1;
-      const currentTime = frameCountRef.current;
-      
       setPositions(prev => {
         const next = { ...prev };
-        const bounds = {
-          left: 0, // Allow behind sidebar
-          right: window.innerWidth - 20,
-          top: 20,
-          bottom: window.innerHeight - 20
-        };
-
-        // Process each video independently
-        VIDEOS.forEach((video, i) => {
-          const videoId = video.id;
-          const pos = next[videoId];
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        
+        VIDEOS.forEach(video => {
+          const pos = next[video.id];
           if (!pos) return;
           
-          const prevPos = prev[videoId];
-          if (!prevPos) return;
+          // Move right at constant speed
+          pos.x += pos.speed;
           
-          // Skip if this element is currently in fade transition
-          if (opacity[videoId] < 0.1) return;
-          
-          // Force movement timer - ensure elements keep moving
-          if (forceMoveTimerRef.current[videoId] === undefined) {
-            forceMoveTimerRef.current[videoId] = 0;
-          }
-          
-          forceMoveTimerRef.current[videoId]++;
-          
-          // Periodically force movement in a new direction
-          if (forceMoveTimerRef.current[videoId] > 200 + (i * 30)) {
-            // Reset timer
-            forceMoveTimerRef.current[videoId] = 0;
+          // Handle fade out and reset
+          if (pos.x > screenWidth - video.width) {
+            // Start fading out
+            pos.opacity = Math.max(0, 1 - (pos.x - (screenWidth - video.width)) / video.width);
             
-            // Force movement toward appropriate edge
-            const goToRight = pos.x < SIDEBAR_WIDTH + 50;
-            const goToLeft = pos.x > window.innerWidth - 300;
-            
-            // Stronger velocity boost
-            pos.vx = (goToRight ? 0.06 : (goToLeft ? -0.06 : (Math.random() > 0.5 ? 0.05 : -0.05)));
-            pos.vy = (Math.random() - 0.5) * 0.04;
-            
-            console.log(`Forced new direction for ${videoId}: vx=${pos.vx.toFixed(2)}, vy=${pos.vy.toFixed(2)}`);
-          }
-          
-          // Detect if element is stuck
-          const isStuck = Math.abs(pos.x - prevPos.x) < 0.01 && Math.abs(pos.y - prevPos.y) < 0.01;
-          
-          if (isStuck) {
-            stuckTimeRef.current[videoId] = (stuckTimeRef.current[videoId] || 0) + 1;
-            
-            // If stuck for a short time, try to unstick
-            if (stuckTimeRef.current[videoId] > 20) {
-              console.log(`Element ${videoId} may be stuck, adding velocity`);
-              
-              // Random direction boost
-              const angle = Math.random() * Math.PI * 2;
-              pos.vx = Math.cos(angle) * 0.07;
-              pos.vy = Math.sin(angle) * 0.07;
+            // Reset position when fully faded
+            if (pos.opacity <= 0) {
+              pos.x = -video.width;
+              pos.opacity = 0;
+              // Generate new random position with path avoidance
+              pos.y = getRandomPosition(next);
             }
-            
-            // If still stuck for too long, fade and reposition
-            if (stuckTimeRef.current[videoId] > 40) {
-              console.log(`Element ${videoId} is definitely stuck, fading out`);
-              fadeAndReposition(videoId);
-              return;
-            }
+          } else if (pos.x < 0) {
+            // Fade in from left
+            pos.opacity = Math.min(1, (pos.x + video.width) / video.width);
           } else {
-            // Reset stuck counter
-            stuckTimeRef.current[videoId] = 0;
+            // Full opacity in middle
+            pos.opacity = 1;
           }
-          
-          // Check if behind text
-          let isBehindText = false;
-          textElements.forEach(textRect => {
-            const videoRect = {
-              left: pos.x,
-              right: pos.x + video.width,
-              top: pos.y,
-              bottom: pos.y + video.height
-            };
-
-            // Detect text overlap
-            if (!(videoRect.right < textRect.left || 
-                videoRect.left > textRect.right || 
-                videoRect.bottom < textRect.top || 
-                videoRect.top > textRect.bottom)) {
-              isBehindText = true;
-              
-              // Stronger push away from text
-              const centerX = pos.x + video.width / 2;
-              const centerY = pos.y + video.height / 2;
-              const textCenterX = textRect.left + textRect.width / 2;
-              const textCenterY = textRect.top + textRect.height / 2;
-              
-              const dx = centerX - textCenterX;
-              const dy = centerY - textCenterY;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              
-              if (dist > 0) {
-                pos.vx += (dx / dist) * 0.15;
-                pos.vy += (dy / dist) * 0.15;
-              }
-            }
-          });
-          
-          // Update behind text counter
-          if (isBehindText) {
-            behindTextTimeRef.current[videoId] = (behindTextTimeRef.current[videoId] || 0) + 1;
-            
-            // If behind text too long, fade out
-            if (behindTextTimeRef.current[videoId] > 60) {
-              console.log(`Element ${videoId} behind text too long, fading out`);
-              fadeAndReposition(videoId);
-              return;
-            }
-          } else {
-            behindTextTimeRef.current[videoId] = 0;
-          }
-          
-          // Wall collisions with more energy
-          if (pos.x <= bounds.left || pos.x + video.width >= bounds.right) {
-            pos.vx = -pos.vx * 0.9;
-            pos.x = pos.x <= bounds.left ? bounds.left + 1 : bounds.right - video.width - 1;
-            // Add vertical randomness on horizontal bounce
-            pos.vy += (Math.random() - 0.5) * 0.03;
-          }
-          
-          if (pos.y <= bounds.top || pos.y + video.height >= bounds.bottom) {
-            pos.vy = -pos.vy * 0.9;
-            pos.y = pos.y <= bounds.top ? bounds.top + 1 : bounds.bottom - video.height - 1;
-            // Add horizontal randomness on vertical bounce
-            pos.vx += (Math.random() - 0.5) * 0.03;
-          }
-          
-          // Apply velocity with minimal damping
-          pos.x += pos.vx;
-          pos.y += pos.vy;
-          pos.vx *= 0.995; // Less damping
-          pos.vy *= 0.995;
-          
-          // Ensure minimum velocity
-          const speed = Math.sqrt(pos.vx * pos.vx + pos.vy * pos.vy);
-          if (speed < 0.02) {
-            const angle = Math.random() * Math.PI * 2;
-            pos.vx = Math.cos(angle) * 0.03;
-            pos.vy = Math.sin(angle) * 0.03;
-          }
-          
-          // Keep within bounds
-          pos.x = Math.max(bounds.left, Math.min(bounds.right - video.width, pos.x));
-          pos.y = Math.max(bounds.top, Math.min(bounds.bottom - video.height, pos.y));
         });
         
         return next;
@@ -313,100 +199,23 @@ const FloatingVideos: React.FC = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
     };
     
-    // Helper function to fade out and reposition an element
-    const fadeAndReposition = (videoId: string) => {
-      // Fade out
-      setOpacity(prev => ({
-        ...prev,
-        [videoId]: 0
-      }));
-      
-      // Reset counters
-      stuckTimeRef.current[videoId] = 0;
-      behindTextTimeRef.current[videoId] = 0;
-      forceMoveTimerRef.current[videoId] = 0;
-      lastFadeTimeRef.current[videoId] = frameCountRef.current;
-      
-      // Reposition after fade
-      setTimeout(() => {
-        const video = VIDEOS.find(v => v.id === videoId);
-        if (!video) return;
-        
-        // Choose an edge position
-        const positionType = Math.floor(Math.random() * 4); // 0: left, 1: right, 2: top, 3: bottom
-        let newX, newY, newVx, newVy;
-        
-        switch (positionType) {
-          case 0: // Left (behind sidebar)
-            newX = Math.random() * SIDEBAR_WIDTH * 0.8;
-            newY = Math.random() * (window.innerHeight - video.height - 40) + 20;
-            newVx = 0.04 + Math.random() * 0.03; // Move right
-            newVy = (Math.random() - 0.5) * 0.03;
-            break;
-            
-          case 1: // Right
-            newX = window.innerWidth - video.width - Math.random() * 100;
-            newY = Math.random() * (window.innerHeight - video.height - 40) + 20;
-            newVx = -(0.04 + Math.random() * 0.03); // Move left
-            newVy = (Math.random() - 0.5) * 0.03;
-            break;
-            
-          case 2: // Top
-            newX = SIDEBAR_WIDTH + Math.random() * (window.innerWidth - SIDEBAR_WIDTH - video.width);
-            newY = 20 + Math.random() * 50;
-            newVx = (Math.random() - 0.5) * 0.04;
-            newVy = 0.04 + Math.random() * 0.02; // Move down
-            break;
-            
-          default: // Bottom
-            newX = SIDEBAR_WIDTH + Math.random() * (window.innerWidth - SIDEBAR_WIDTH - video.width);
-            newY = window.innerHeight - video.height - 20 - Math.random() * 50;
-            newVx = (Math.random() - 0.5) * 0.04;
-            newVy = -(0.04 + Math.random() * 0.02); // Move up
-        }
-        
-        // Set new position and velocity
-        setPositions(prev => ({
-          ...prev,
-          [videoId]: {
-            ...prev[videoId],
-            x: newX,
-            y: newY,
-            vx: newVx,
-            vy: newVy
-          }
-        }));
-        
-        // Fade back in
-        setOpacity(prev => ({
-          ...prev,
-          [videoId]: 0.5
-        }));
-        
-        console.log(`Repositioned ${videoId} to x:${newX.toFixed(0)}, y:${newY.toFixed(0)}`);
-      }, 500);
-    };
-    
     animate();
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isMobile, textElements, opacity]);
+  }, [isMobile]);
 
-  // Don't render videos on mobile
+  // Don't render on mobile
   if (isMobile) return null;
 
   const getVideoUrl = (video: VideoConfig) => {
     if (video.id === 'aws_video') {
-      // Standard looping for AWS video
       return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&controls=0&showinfo=0&modestbranding=1&start=${video.startTime}&end=${video.endTime}`;
     } else if (video.id === 'meshed_video') {
-      // Absolute path to local video file
       return '/videos/meshed.mov';
     } else {
-      // Special approach for 8th wall video
       return `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&loop=1&playlist=${video.videoId}&controls=0&showinfo=0&modestbranding=1&clip=${video.startTime};${video.endTime}&clipt=${video.startTime};${video.endTime}`;
     }
   };
@@ -420,14 +229,14 @@ const FloatingVideos: React.FC = () => {
         return (
           <div
             key={video.id}
-            className="fixed pointer-events-none overflow-hidden transition-opacity duration-300 floating-element"
+            className="fixed pointer-events-none overflow-hidden floating-element"
             style={{
               width: video.width,
               height: video.height,
               transform: `translate(${position.x}px, ${position.y}px)`,
               filter: 'blur(0.5px)',
-              opacity: opacity[video.id],
-              transition: 'opacity 0.5s ease-in-out, transform 0.3s ease-in-out',
+              opacity: position.opacity,
+              transition: 'opacity 0.5s ease-in-out',
             }}
           >
             {video.imageUrl ? (
@@ -489,4 +298,4 @@ const FloatingVideos: React.FC = () => {
   );
 };
 
-export default FloatingVideos; 
+export default FloatingVideos;
