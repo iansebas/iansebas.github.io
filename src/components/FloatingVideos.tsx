@@ -235,7 +235,7 @@ const FloatingVideos: React.FC = () => {
               height: video.height,
               transform: `translate(${position.x}px, ${position.y}px)`,
               filter: 'blur(0.5px)',
-              opacity: position.opacity,
+              opacity: position.opacity * 0.85,
               transition: 'opacity 0.5s ease-in-out',
             }}
           >
