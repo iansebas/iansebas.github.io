@@ -39,10 +39,12 @@ export default function HomePage() {
               exit={{ y: -20, opacity: 0 }}
               transition={{ duration: 0.15 }}
               className={classNames(
-                "text-3xl md:text-6xl font-medium text-white/90 text-shadow absolute inset-0 flex items-center justify-center font-mono tracking-wider whitespace-nowrap text-center",
+                "text-3xl md:text-6xl font-medium text-white text-shadow absolute inset-0 flex items-center justify-center font-mono tracking-wider whitespace-nowrap text-center select-none pointer-events-none",
                 isChanging ? "blur-sm" : ""
               )}
               style={{ width: '100%' }}
+              tabIndex={-1}
+              aria-hidden="true"
             >
               {tags[currentTagIndex]}
             </motion.h2>
