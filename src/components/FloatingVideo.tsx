@@ -29,28 +29,35 @@ const FloatingVideo = ({ video, position, isMobile }: FloatingVideoProps) => {
     const container = containerRef.current;
     if (!container || typeof window === 'undefined') return;
 
-    const SIDEBAR_WIDTH = isMobile ? 0 : 256; // 16rem = 256px
+    // Only do random positioning on desktop
+    if (!isMobile) {
+      const SIDEBAR_WIDTH = 256; // 16rem = 256px
 
-    // Calculate safe zones (right side of main content)
-    const safeZones: SafeZone[] = [
-      // Main content area (middle-right)
-      { 
-        x: SIDEBAR_WIDTH + (window.innerWidth - SIDEBAR_WIDTH) * 0.3, 
-        y: window.innerHeight * 0.2, // Start 20% from top
-        width: (window.innerWidth - SIDEBAR_WIDTH) * 0.7, 
-        height: window.innerHeight * 0.6 // Use middle 60% of height
-      }
-    ];
+      // Calculate safe zones (right side of main content)
+      const safeZones: SafeZone[] = [
+        // Main content area (middle-right)
+        { 
+          x: SIDEBAR_WIDTH + (window.innerWidth - SIDEBAR_WIDTH) * 0.3, 
+          y: window.innerHeight * 0.2, // Start 20% from top
+          width: (window.innerWidth - SIDEBAR_WIDTH) * 0.7, 
+          height: window.innerHeight * 0.6 // Use middle 60% of height
+        }
+      ];
 
-    // Always use the main right area
-    const randomZone = safeZones[0];
-    
-    // Calculate random position within the safe zone
-    const randomX = randomZone.x + Math.random() * (randomZone.width - 300);
-    const randomY = randomZone.y + Math.random() * (randomZone.height - 150);
-    
-    container.style.left = `${randomX}px`;
-    container.style.top = `${randomY}px`;
+      // Always use the main right area
+      const randomZone = safeZones[0];
+      
+      // Calculate random position within the safe zone
+      const randomX = randomZone.x + Math.random() * (randomZone.width - 300);
+      const randomY = randomZone.y + Math.random() * (randomZone.height - 150);
+      
+      container.style.left = `${randomX}px`;
+      container.style.top = `${randomY}px`;
+    } else {
+      // On mobile, reset container to top-left to let transform positioning work
+      container.style.left = '0px';
+      container.style.top = '0px';
+    }
 
     // Add subtle floating animation
     container.style.animation = 'float 40s ease-in-out infinite';

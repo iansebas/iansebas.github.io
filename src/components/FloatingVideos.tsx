@@ -66,15 +66,18 @@ const FloatingVideos: React.FC = () => {
     const screenHeight = window.innerHeight;
 
     if (isMobile) {
-      // On mobile: assign each video a unique fixed vertical lane, randomize horizontal position and speed
-      const mobileVideos = VIDEOS.slice(0, 2); // Only 2 videos for clarity
+      // On mobile: only 2 videos, fixed vertical lanes, scaled positions
+      const mobileScale = 0.7;
+      const mobileVideos = VIDEOS.slice(0, 2);
       const lanePositions = [screenHeight / 3, (2 * screenHeight) / 3];
       mobileVideos.forEach((video, i) => {
-        const yPosition = lanePositions[i] - (video.height * 0.6) / 2; // scale down
+        const widthScaled = video.width * mobileScale;
+        const heightScaled = video.height * mobileScale;
+        const yPosition = lanePositions[i] - heightScaled / 2;
         const minSpeed = 0.4;
         const maxSpeed = 0.8;
         const speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
-        const startX = -video.width * 0.6 + (Math.random() * (screenWidth + video.width * 1.2));
+        const startX = -widthScaled + Math.random() * (screenWidth + widthScaled * 2);
         initialPositions[video.id] = {
           x: startX,
           y: yPosition,
@@ -84,11 +87,8 @@ const FloatingVideos: React.FC = () => {
       });
     } else {
       // Desktop logic (unchanged)
-      // Shuffle videos array to randomize speeds
       const shuffledVideos = [...VIDEOS].sort(() => Math.random() - 0.5);
-      // Calculate vertical segments (5 equal segments)
       const segmentHeight = screenHeight / 5;
-      // Determine how many videos go to top vs bottom
       const topCount = Math.ceil(shuffledVideos.length / 2);
       const bottomCount = shuffledVideos.length - topCount;
       shuffledVideos.forEach((video, i) => {
@@ -134,27 +134,18 @@ const FloatingVideos: React.FC = () => {
         let needsUpdate = false;
 
         if (isMobile) {
-          // Only update mobileVideos
+          const mobileScale = 0.7;
           const mobileVideos = VIDEOS.slice(0, 2);
-          const lanePositions = [window.innerHeight / 3, (2 * window.innerHeight) / 3];
-          mobileVideos.forEach((video, i) => {
+          mobileVideos.forEach(video => {
             const pos = newPositions[video.id];
             if (!pos) return;
+            const widthScaled = video.width * mobileScale;
             const newX = pos.x + pos.speed;
-            const maxX = window.innerWidth + video.width * 0.6;
+            const maxX = window.innerWidth + widthScaled;
             if (newX > maxX) {
-              // Reset to left, keep same vertical lane
-              newPositions[video.id] = {
-                ...pos,
-                x: -video.width * 0.6,
-                y: lanePositions[i] - (video.height * 0.6) / 2
-              };
+              newPositions[video.id] = { ...pos, x: -widthScaled };
             } else {
-              newPositions[video.id] = {
-                ...pos,
-                x: newX,
-                y: lanePositions[i] - (video.height * 0.6) / 2
-              };
+              newPositions[video.id] = { ...pos, x: newX };
             }
             needsUpdate = true;
           });
