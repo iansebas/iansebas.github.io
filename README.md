@@ -52,6 +52,7 @@ A modern, responsive portfolio website built with Next.js, React, and Tailwind C
 /
 ├── public/              # Static assets
 │   ├── images/          # Images for the portfolio
+│   ├── pdfs/            # PDF files (accessible via direct URL only)
 │   └── resources/       # PDF files like resume
 ├── src/                 # Source code
 │   ├── app/             # Next.js app router
@@ -62,6 +63,14 @@ A modern, responsive portfolio website built with Next.js, React, and Tailwind C
 ├── next.config.mjs      # Next.js configuration
 └── README.md            # This file
 ```
+
+## PDF Hosting
+
+The `public/pdfs/` directory allows you to host PDF files that are accessible via direct URL but not navigable from the website:
+
+- Drop PDF files into `public/pdfs/`
+- Access them at: `https://iansebas.github.io/pdfs/filename.pdf`
+- Files are not linked from the website navigation
 
 ## Customization
 
