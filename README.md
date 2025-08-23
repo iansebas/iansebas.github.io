@@ -37,6 +37,19 @@ A modern, responsive portfolio website built with Next.js, React, and Tailwind C
 
 ## Deployment
 
+To deploy to GitHub Pages, use:
+
+```bash
+npm run deploy:ci
+```
+
+If deployment fails with "branch already exists" error:
+```bash
+rm -rf node_modules/.cache/gh-pages
+npm run deploy
+```
+
+**Legacy deployment info:**
 - Source code is on the `master` branch.
 - The `live` branch is used for GitHub Pages deployment.
 - To deploy, run `./deploy.sh` from the project root.

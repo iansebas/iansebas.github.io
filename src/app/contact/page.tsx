@@ -36,9 +36,7 @@ export default function Contact() {
       <div className="flex flex-col md:flex-row justify-center gap-8 md:gap-28 w-full max-w-6xl">
         {/* Resume Link */}
         <a 
-          href="/resume_ian_rios.pdf" 
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/resume"
           className="transition-all duration-300 hover:transform hover:scale-110"
         >
           <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">resume</h2>
