@@ -79,10 +79,10 @@ echo "✅ Build completed successfully."
 # Deploy
 echo "
 ##############################################################################
-#                         DEPLOYING TO LIVE BRANCH                           #
+#                         DEPLOYING TO GH-PAGES BRANCH                       #
 ##############################################################################
 "
-echo ">>> Deploying to live branch using gh-pages..."
+echo ">>> Deploying to gh-pages branch using gh-pages..."
 
 # Use SSH URL instead of HTTPS (or reuse the origin remote which should have authentication set up)
 REPO_URL=$(git config --get remote.origin.url)
@@ -108,8 +108,8 @@ if [[ -f ~/.ssh/id_rsa || -f ~/.ssh/id_ed25519 ]]; then
 fi
 
 echo ">>> Attempting deployment with gh-pages..."
-npx gh-pages -d out -b live -r "$REPO_URL"
-echo "✅ Deployment to live branch completed."
+npx gh-pages -d out -b gh-pages -r "$REPO_URL"
+echo "✅ Deployment to gh-pages branch completed."
 
 # Cleanup
 echo "
