@@ -37,8 +37,24 @@ A modern, responsive portfolio website built with Next.js, React, and Tailwind C
 
 ## Deployment
 
-To deploy to GitHub Pages, use:
+**CORRECT DEPLOYMENT PROCESS:**
 
+To deploy to GitHub Pages (pushes code AND deploys), use:
+
+```bash
+./deploy.sh
+```
+
+This script will:
+1. Add and commit all changes to `master` branch
+2. Push changes to GitHub
+3. Build the Next.js project with static export
+4. Deploy to `gh-pages` branch (which serves the live site)
+5. Clean up build artifacts
+
+**Alternative deployment methods:**
+
+If you only want to deploy (without pushing code):
 ```bash
 npm run deploy:ci
 ```
@@ -49,15 +65,10 @@ rm -rf node_modules/.cache/gh-pages
 npm run deploy
 ```
 
-**Legacy deployment info:**
-- Source code is on the `master` branch.
-- The `live` branch is used for GitHub Pages deployment.
-- To deploy, run `./deploy.sh` from the project root.
-- The script will:
-  - Increment a deployment counter
-  - Commit to `master` with message `deployment X`
-  - Build and export the site
-  - Push the contents of `out/` to the `live` branch using `gh-pages`
+**Important Notes:**
+- GitHub Pages serves from the `gh-pages` branch
+- The `./deploy.sh` script handles everything automatically
+- Make sure the script is executable: `chmod +x ./deploy.sh`
 
 ## Folder Structure
 
