@@ -67,18 +67,23 @@
 
         .paper-list {
             list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem 2rem;
+            max-width: 600px;
         }
 
         .paper-item {
-            margin-bottom: 1rem;
             transform: translateX(-10px);
             opacity: 0;
             animation: slideInFade 0.8s ease-out forwards;
         }
 
-        .paper-item:nth-child(2) { animation-delay: 0.2s; }
-        .paper-item:nth-child(3) { animation-delay: 0.4s; }
-        .paper-item:nth-child(4) { animation-delay: 0.6s; }
+        .paper-item:nth-child(2n) { animation-delay: 0.1s; }
+        .paper-item:nth-child(3n) { animation-delay: 0.2s; }
+        .paper-item:nth-child(4n) { animation-delay: 0.3s; }
+        .paper-item:nth-child(5n) { animation-delay: 0.4s; }
+        .paper-item:nth-child(6n) { animation-delay: 0.5s; }
 
         .paper-link {
             color: rgba(255, 255, 255, 0.85);
@@ -302,17 +307,33 @@
     </div>
 
     <script>
-        // Define the available PDFs
-        const papers = [
-            'wanderings'
-        ];
-
-        function loadPapers() {
+        // Automatically detect PDFs by trying common names
+        async function loadPapers() {
             const paperList = document.getElementById('paperList');
+            const commonPapers = ['wanderings', 'abstractions', 'thoughts', 'musings', 'reflections', 'essays', 'notes', 'writings'];
+            const foundPapers = [];
             
-            papers.forEach((paper, index) => {
+            // Check each potential paper
+            for (const paper of commonPapers) {
+                try {
+                    const response = await fetch(`./pdfs/${paper}.pdf`, { method: 'HEAD' });
+                    if (response.ok) {
+                        foundPapers.push(paper);
+                    }
+                } catch (error) {
+                    // PDF doesn't exist, skip
+                }
+            }
+            
+            // If no common names found, fall back to known papers
+            if (foundPapers.length === 0) {
+                foundPapers.push('wanderings');
+            }
+            
+            foundPapers.forEach((paper, index) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'paper-item';
+                listItem.style.animationDelay = `${index * 0.15}s`;
                 
                 const link = document.createElement('a');
                 link.href = `./pdfs/${paper}.pdf`;
