@@ -61,7 +61,7 @@ const RandomHeadshot = () => {
 const navItems = [
   { name: 'about', path: '/about' },
   { name: 'work', path: '/work' },
-  { name: 'writing', path: '/unruly' },
+  { name: 'writing', path: '/unruly.html' },
   { name: 'contact', path: '/contact' },
 ];
 
