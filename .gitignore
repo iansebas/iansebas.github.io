@@ -1,15 +1,24 @@
 # Ignore build output
+# ⚠️ CRITICAL: /out/ contains static build files for deployment
+# The deployment process uses: npx gh-pages -d out -b live
+# Build files are temporarily generated, deployed to 'live' branch, then cleaned up
+# GitHub Pages serves from 'live' branch (NOT gh-pages)
+# Last verified working: Aug 25, 2025
 /out/
 
 # Dependencies
 /node_modules
 
 # Next.js build directory
+# ⚠️ Contains Next.js cache and build artifacts
+# Not deployed - only /out/ folder is deployed to live site
 /.next/
 
 # OS files
 .DS_Store
 
 # Deployment counter
+# ⚠️ Tracks deployment numbers for ./deploy.sh script
+# Incremented on each deployment for commit messages
 .deploy_count
 

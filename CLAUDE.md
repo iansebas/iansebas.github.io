@@ -11,7 +11,9 @@ Claude has FULL access to this repository folder and can:
 - Perform file operations (move, copy, rename)
 - Access all subdirectories and files
 
-## Deployment Process
+## ⚠️ CRITICAL: DEPLOYMENT PROCESS ⚠️
+
+**VERIFIED WORKING METHOD (Aug 25, 2025)**
 
 When the user says "deploy", run the following command:
 
@@ -19,47 +21,54 @@ When the user says "deploy", run the following command:
 ./deploy.sh
 ```
 
+**⚠️ CRITICAL TECHNICAL DETAILS ⚠️**
+
 **What this does:**
 1. Commits all changes to the `master` branch
 2. Pushes code to GitHub
-3. Builds the Next.js project with static export
-4. Deploys to `gh-pages` branch (which serves the live site at https://iansebas.github.io/)
+3. Builds the Next.js project with static export (`npm run build`)
+4. Deploys to `live` branch (NOT `gh-pages`) using `npx gh-pages -d out -b live`
 5. Cleans up build artifacts
+
+**⚠️ DEPLOYMENT TARGET: `live` branch (NOT `gh-pages`) ⚠️**
+
+- GitHub Pages serves from the `live` branch
+- The script uses: `npx gh-pages -d out -b live -r "$REPO_URL"`
+- REPO_URL is dynamically retrieved via `git config --get remote.origin.url`
 
 **After deployment, ALWAYS verify:**
 1. Main site works: https://iansebas.github.io/
 2. Resume page works: https://iansebas.github.io/resume/
 3. PDF files in public/pdfs/ are accessible at: https://iansebas.github.io/pdfs/filename.pdf
-4. Example: https://iansebas.github.io/pdfs/wanderings.pdf
-5. **CRITICAL**: Download the live PDF and verify its hash matches the local repo version:
+4. Test PDF verification: https://iansebas.github.io/pdfs/test-claude.pdf (should contain "i am claude")
+5. Example: https://iansebas.github.io/pdfs/wanderings.pdf
+6. **CRITICAL**: Verify PDF hashes match:
    ```bash
-   # Download live PDF
-   curl -o /tmp/live_wanderings.pdf https://iansebas.github.io/pdfs/wanderings.pdf
-   # Compare hashes
+   # Local hash
    shasum public/pdfs/wanderings.pdf
-   shasum /tmp/live_wanderings.pdf
+   # Live hash  
+   curl -s https://iansebas.github.io/pdfs/wanderings.pdf | shasum
    ```
-   If hashes don't match, the old PDF is still cached - wait a few minutes and check again.
+   Expected: f71733435bf896386b92e2a829052df3fb5ad0e3
 
 ## Troubleshooting Deployment Issues
 
-**CRITICAL FIX - If PDFs/files aren't updating on live site:**
-This happens when the gh-pages cache becomes stale and deployments say "Published" but don't actually push to GitHub:
-```bash
-rm -rf node_modules/.cache/gh-pages
-./deploy.sh
-```
-**Root cause**: The gh-pages npm package caches the repository locally. If this cache gets corrupted or stale, deployments appear to succeed but don't push to GitHub. Clearing the cache forces a fresh deployment.
+**CRITICAL DEPLOYMENT NOTES & TROUBLESHOOTING:**
 
-**If deployment fails with "branch already exists" error:**
-```bash
-rm -rf node_modules/.cache/gh-pages
-./deploy.sh
-```
+**⚠️ Git errors don't necessarily mean deployment failure ⚠️**
+- Git pack corruption errors may appear but deployment often succeeds anyway
+- Always verify PDFs on live site after deployment regardless of error messages
+- Check remote `live` branch for successful pushes: `git ls-remote origin live`
+
+**If deployment appears to fail:**
+1. Clear gh-pages cache: `rm -rf node_modules/.cache/gh-pages`
+2. Run deployment again: `./deploy.sh`  
+3. Verify live site regardless of terminal errors
+4. Check PDF accessibility and hashes
 
 **If PDFs still aren't updating after cache clear:**
 - GitHub Pages may cache static files for several minutes
-- Verify hashes using the verification step above  
+- Verify hashes using the verification step above
 - Wait 5-10 minutes and check again
 - GitHub Pages CDN cache can take time to invalidate
 
@@ -69,12 +78,20 @@ npm install
 npm run build
 ```
 
-## Important Notes
+**⚠️ CRITICAL DEPLOYMENT NOTES ⚠️**
 
 - The `./deploy.sh` script handles EVERYTHING (code commit + push + deploy)
-- GitHub Pages serves from the `gh-pages` branch
+- GitHub Pages serves from the `live` branch (NOT `gh-pages`)  
 - Never use `npm run deploy:ci` unless specifically asked - use `./deploy.sh`
-- All git operations are automated in the deployment script
+- Git pack corruption errors are common but don't indicate deployment failure
+- Always verify PDF accessibility on live site after deployment
+- Remote branches: `origin/live` (serves content) and `origin/gh-pages` (legacy)
+
+**DEPLOYMENT VERIFICATION EVIDENCE:**
+- Working method identified from commit 1916455 analysis (deployment 23)
+- Test deployment verified Aug 25, 2025 at 03:00:39
+- PDFs confirmed accessible: wanderings.pdf, test-claude.pdf  
+- Live branch contains current content with correct file hashes
 - Claude has full permissions to modify any aspect of this codebase
 
 ## PDF Display Features

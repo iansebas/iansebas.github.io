@@ -37,7 +37,9 @@ A modern, responsive portfolio website built with Next.js, React, and Tailwind C
 
 ## Deployment
 
-**CORRECT DEPLOYMENT PROCESS:**
+**⚠️ CRITICAL: DEPLOYMENT PROCESS DOCUMENTATION ⚠️**
+
+**WORKING DEPLOYMENT PROCESS** (Verified Aug 25, 2025):
 
 To deploy to GitHub Pages (pushes code AND deploys), use:
 
@@ -45,30 +47,45 @@ To deploy to GitHub Pages (pushes code AND deploys), use:
 ./deploy.sh
 ```
 
+**CRITICAL TECHNICAL DETAILS:**
+
 This script will:
 1. Add and commit all changes to `master` branch
 2. Push changes to GitHub
-3. Build the Next.js project with static export
-4. Deploy to `gh-pages` branch (which serves the live site)
+3. Build the Next.js project with static export (`npm run build`)
+4. Deploy to `live` branch (NOT `gh-pages`) using `npx gh-pages -d out -b live`
 5. Clean up build artifacts
 
-**Alternative deployment methods:**
+**⚠️ DEPLOYMENT TARGET BRANCH: `live` (NOT `gh-pages`) ⚠️**
 
-If you only want to deploy (without pushing code):
-```bash
-npm run deploy:ci
-```
+- GitHub Pages serves from the `live` branch
+- The deployment uses `npx gh-pages -d out -b live -r [REPO_URL]`
+- REPO_URL is dynamically retrieved via `git config --get remote.origin.url`
+
+**VERIFICATION PROCESS:**
+After deployment, verify:
+1. Main site: https://iansebas.github.io/
+2. PDF files: https://iansebas.github.io/pdfs/filename.pdf
+3. Test PDF: https://iansebas.github.io/pdfs/test-claude.pdf (contains "i am claude")
+
+**COMMON ISSUES & SOLUTIONS:**
+
+If deployment fails with git pack corruption:
+- The deployment may still succeed - check the `live` branch
+- Verify PDFs are accessible on the live site
+- Git errors don't necessarily mean deployment failure
 
 If deployment fails with "branch already exists" error:
 ```bash
 rm -rf node_modules/.cache/gh-pages
-npm run deploy
+./deploy.sh
 ```
 
-**Important Notes:**
-- GitHub Pages serves from the `gh-pages` branch
-- The `./deploy.sh` script handles everything automatically
-- Make sure the script is executable: `chmod +x ./deploy.sh`
+**DEPLOYMENT HISTORY & EVIDENCE:**
+- Working method identified from commit 1916455 (deployment 23)
+- Test verification completed Aug 25, 2025
+- PDFs successfully deployed: wanderings.pdf, test-claude.pdf
+- Branch target: `live` (confirmed via git ls-remote origin)
 
 ## Folder Structure
 

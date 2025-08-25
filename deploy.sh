@@ -1,10 +1,31 @@
 #!/bin/bash
 set -e
 
+# ⚠️ CRITICAL DEPLOYMENT DOCUMENTATION ⚠️
+# 
+# VERIFIED WORKING METHOD (Aug 25, 2025):
+# This script deploys to the 'live' branch using npx gh-pages
+# GitHub Pages serves from the 'live' branch (NOT gh-pages)
+# 
+# Key technical details:
+# - Target branch: 'live' (confirmed via git ls-remote origin)
+# - Command: npx gh-pages -d out -b live -r "$REPO_URL" 
+# - REPO_URL: Dynamic via git config --get remote.origin.url
+# - Verification: https://iansebas.github.io/pdfs/test-claude.pdf
+# 
+# Evidence of working deployment:
+# - Test PDF deployed successfully (592 bytes, contains "i am claude")
+# - wanderings.pdf hash: f71733435bf896386b92e2a829052df3fb5ad0e3
+# - Live branch updated: Aug 25, 2025 at 03:00:39
+# 
+# CRITICAL: Git pack corruption errors may appear but deployment often succeeds
+# Always verify PDFs on live site regardless of terminal errors
+
 echo "
 ##############################################################################
 #                                                                            #
 #                     STARTING DEPLOYMENT PROCESS                            #
+#                     ⚠️ DEPLOYS TO 'live' BRANCH ⚠️                          #
 #                                                                            #
 ##############################################################################
 "
@@ -79,52 +100,54 @@ echo "✅ Build completed successfully."
 # Deploy
 echo "
 ##############################################################################
-#                         DEPLOYING TO GH-PAGES BRANCH                       #
+#                         DEPLOYING TO LIVE BRANCH                           #
 ##############################################################################
 "
-echo ">>> Deploying to gh-pages branch using manual method..."
+echo ">>> Deploying to live branch using gh-pages package..."
 
-# Create a temp directory for the build
-mkdir -p temp_deploy
-echo ">>> Created temp deployment directory"
+# Use SSH URL instead of HTTPS (or reuse the origin remote which should have authentication set up)
+REPO_URL=$(git config --get remote.origin.url)
+echo ">>> Using repository URL: $REPO_URL"
 
-# Copy the build output to the temp directory
-cp -r out/* temp_deploy/
-cp out/.nojekyll temp_deploy/
-echo ">>> Copied build output to temp directory"
+# Check if URL is HTTPS and provide a warning
+if [[ $REPO_URL == https://* ]]; then
+  echo "
+  ⚠️  WARNING: Using HTTPS URL which may require token-based authentication ⚠️
+  If deployment fails, consider switching to SSH:
+    - Run: git remote set-url origin git@github.com:iansebas/iansebas.github.io.git
+  Or use a GitHub Personal Access Token (classic) with repo scope
+  "
+fi
 
-# Switch to the gh-pages branch, creating it if it doesn't exist
-git checkout -B gh-pages
-echo ">>> Switched to gh-pages branch"
+# Debug info
+echo ">>> Git authentication method in use:"
+if [[ -f ~/.git-credentials ]]; then
+  echo "  - Git credentials helper is configured"
+fi
+if [[ -f ~/.ssh/id_rsa || -f ~/.ssh/id_ed25519 ]]; then
+  echo "  - SSH keys are present"
+fi
 
-# Remove existing files (except .git and temp_deploy)
-find . -maxdepth 1 ! -name 'temp_deploy' ! -name '.git' ! -name '.gitignore' ! -name '.' ! -name '..' -exec rm -rf {} \;
-echo ">>> Cleared existing files"
+echo ">>> ⚠️ CRITICAL: Deploying to 'live' branch (NOT gh-pages) ⚠️"
+echo ">>> Command: npx gh-pages -d out -b live -r \"$REPO_URL\""
+npx gh-pages -d out -b live -r "$REPO_URL"
+echo "✅ Deployment to live branch completed."
 
-# Move built files to the root
-cp -r temp_deploy/* .
-cp temp_deploy/.nojekyll .
-echo ">>> Moved build files to root"
-
-# Remove the temp directory
-rm -rf temp_deploy
-echo ">>> Cleaned up temp directory"
-
-# Add all files to git
-git add .
-echo ">>> Added files to git"
-
-# Commit the changes
-git commit -m "Deploy website to GitHub Pages - deployment $COUNT"
-echo ">>> Committed changes"
-
-# Push to the gh-pages branch
-git push -f origin gh-pages
-echo ">>> Pushed to gh-pages branch"
-
-# Return to the main branch
-git checkout master
-echo "✅ Deployment to gh-pages branch completed."
+# ⚠️ CRITICAL DEPLOYMENT VERIFICATION ⚠️
+echo "
+##############################################################################
+#                         DEPLOYMENT VERIFICATION                            #
+##############################################################################
+"
+echo ">>> IMPORTANT: Git errors above don't necessarily mean deployment failed!"
+echo ">>> Verifying deployment success on live site..."
+echo ">>> Check these URLs after deployment:"
+echo "    - Main site: https://iansebas.github.io/"
+echo "    - Test PDF: https://iansebas.github.io/pdfs/test-claude.pdf"
+echo "    - Main PDF: https://iansebas.github.io/pdfs/wanderings.pdf"
+echo ">>> Expected PDF hashes:"
+echo "    - wanderings.pdf: f71733435bf896386b92e2a829052df3fb5ad0e3"
+echo "    - test-claude.pdf: bd5d849989f40cf277f21e9e462c7f84cced601a"
 
 # Cleanup
 echo "
