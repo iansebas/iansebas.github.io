@@ -316,7 +316,10 @@
             // Check each potential paper
             for (const paper of commonPapers) {
                 try {
-                    const response = await fetch(`./pdfs/${paper}.pdf`, { method: 'HEAD' });
+                    const response = await fetch(`./pdfs/${paper}.pdf?v=${Date.now()}`, { 
+                        method: 'HEAD',
+                        cache: 'no-store'
+                    });
                     if (response.ok) {
                         foundPapers.push(paper);
                     }
@@ -336,7 +339,7 @@
                 listItem.style.animationDelay = `${index * 0.15}s`;
                 
                 const link = document.createElement('a');
-                link.href = `./pdfs/${paper}.pdf`;
+                link.href = `./pdfs/${paper}.pdf?v=${Date.now()}`;
                 link.className = 'paper-link';
                 link.textContent = paper;
                 link.target = '_blank';
