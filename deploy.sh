@@ -82,33 +82,48 @@ echo "
 #                         DEPLOYING TO GH-PAGES BRANCH                       #
 ##############################################################################
 "
-echo ">>> Deploying to gh-pages branch using gh-pages..."
+echo ">>> Deploying to gh-pages branch using manual method..."
 
-# Use SSH URL instead of HTTPS (or reuse the origin remote which should have authentication set up)
-REPO_URL=$(git config --get remote.origin.url)
-echo ">>> Using repository URL: $REPO_URL"
+# Create a temp directory for the build
+mkdir -p temp_deploy
+echo ">>> Created temp deployment directory"
 
-# Check if URL is HTTPS and provide a warning
-if [[ $REPO_URL == https://* ]]; then
-  echo "
-  ⚠️  WARNING: Using HTTPS URL which may require token-based authentication ⚠️
-  If deployment fails, consider switching to SSH:
-    - Run: git remote set-url origin git@github.com:iansebas/iansebas.github.io.git
-  Or use a GitHub Personal Access Token (classic) with repo scope
-  "
-fi
+# Copy the build output to the temp directory
+cp -r out/* temp_deploy/
+cp out/.nojekyll temp_deploy/
+echo ">>> Copied build output to temp directory"
 
-# Debug info
-echo ">>> Git authentication method in use:"
-if [[ -f ~/.git-credentials ]]; then
-  echo "  - Git credentials helper is configured"
-fi
-if [[ -f ~/.ssh/id_rsa || -f ~/.ssh/id_ed25519 ]]; then
-  echo "  - SSH keys are present"
-fi
+# Switch to the gh-pages branch, creating it if it doesn't exist
+git checkout -B gh-pages
+echo ">>> Switched to gh-pages branch"
 
-echo ">>> Attempting deployment with gh-pages..."
-npx gh-pages -d out -b gh-pages -r "$REPO_URL"
+# Remove existing files (except .git and temp_deploy)
+find . -maxdepth 1 ! -name 'temp_deploy' ! -name '.git' ! -name '.gitignore' ! -name '.' ! -name '..' -exec rm -rf {} \;
+echo ">>> Cleared existing files"
+
+# Move built files to the root
+cp -r temp_deploy/* .
+cp temp_deploy/.nojekyll .
+echo ">>> Moved build files to root"
+
+# Remove the temp directory
+rm -rf temp_deploy
+echo ">>> Cleaned up temp directory"
+
+# Add all files to git
+git add .
+echo ">>> Added files to git"
+
+# Commit the changes
+git commit -m "Deploy website to GitHub Pages - deployment $COUNT"
+echo ">>> Committed changes"
+
+# Push to the gh-pages branch
+git push -f origin gh-pages
+echo ">>> Pushed to gh-pages branch"
+
+# Return to the main branch
+git checkout master
 echo "✅ Deployment to gh-pages branch completed."
 
 # Cleanup
