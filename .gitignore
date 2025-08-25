@@ -1,0 +1,15 @@
+# Ignore build output
+/out/
+
+# Dependencies
+/node_modules
+
+# Next.js build directory
+/.next/
+
+# OS files
+.DS_Store
+
+# Deployment counter
+.deploy_count
+
