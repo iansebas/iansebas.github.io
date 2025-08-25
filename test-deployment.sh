@@ -83,9 +83,10 @@ echo "
 "
 ./deploy.sh
 
-# Wait a moment for deployment propagation
-echo ">>> Waiting 10 seconds for deployment propagation..."
-sleep 10
+# Wait for CDN propagation (GitHub Pages/Fastly CDN delay)
+echo ">>> Waiting 45 seconds for GitHub Pages CDN propagation..."
+echo ">>> (CDN cache invalidation can take 30-60 seconds)"
+sleep 45
 
 # Test live site accessibility
 echo "
@@ -94,8 +95,22 @@ echo "
 LIVE_URL="https://iansebas.github.io/pdfs/${TEST_PDF}"
 echo ">>> Testing URL: ${LIVE_URL}"
 
-# Download and verify
-HTTP_CODE=$(curl -s -w "%{http_code}" "${LIVE_URL}" -o "/tmp/${TEST_PDF}")
+# Download and verify with retries for CDN delays
+MAX_RETRIES=3
+RETRY_COUNT=0
+HTTP_CODE="404"
+
+while [ "${HTTP_CODE}" != "200" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo ">>> Attempt ${RETRY_COUNT}/${MAX_RETRIES}: Testing ${LIVE_URL}"
+    HTTP_CODE=$(curl -s -w "%{http_code}" "${LIVE_URL}" -o "/tmp/${TEST_PDF}")
+    
+    if [ "${HTTP_CODE}" != "200" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+        echo ">>> Got HTTP ${HTTP_CODE}, waiting 15 seconds before retry..."
+        sleep 15
+    fi
+done
+
 if [ "${HTTP_CODE}" = "200" ]; then
     LIVE_HASH=$(shasum "/tmp/${TEST_PDF}" | cut -d' ' -f1)
     echo ">>> Live PDF hash: ${LIVE_HASH}"

@@ -87,11 +87,36 @@ npm run build
 - Always verify PDF accessibility on live site after deployment
 - Remote branches: `origin/live` (serves content) and `origin/gh-pages` (legacy)
 
+**AUTOMATED DEPLOYMENT TESTING:**
+
+**⚠️ CRITICAL: Use ./test-deployment.sh to verify deployment works ⚠️**
+
+Before claiming deployment success, ALWAYS run:
+```bash
+./test-deployment.sh
+```
+
+This script:
+- Creates unique test PDF with timestamp
+- Deploys to live site
+- Waits for CDN propagation (45+ seconds)
+- Verifies PDF accessibility with retries
+- Compares file hashes for integrity
+- Cleans up test artifacts
+- Reports PASS/FAIL with evidence
+
+**CDN DELAY IMPORTANT:**
+- GitHub Pages uses Fastly CDN
+- New files take 30-60 seconds to propagate
+- Test script accounts for this delay
+- Manual verification may show 404 initially
+
 **DEPLOYMENT VERIFICATION EVIDENCE:**
 - Working method identified from commit 1916455 analysis (deployment 23)
-- Test deployment verified Aug 25, 2025 at 03:00:39
+- Test deployment verified Aug 25, 2025 with automated testing
 - PDFs confirmed accessible: wanderings.pdf, test-claude.pdf  
 - Live branch contains current content with correct file hashes
+- Automated test script validates deployment reliability
 - Claude has full permissions to modify any aspect of this codebase
 
 ## PDF Display Features
