@@ -43,17 +43,25 @@ When the user says "deploy", run the following command:
 
 ## Troubleshooting Deployment Issues
 
+**CRITICAL FIX - If PDFs/files aren't updating on live site:**
+This happens when the gh-pages cache becomes stale and deployments say "Published" but don't actually push to GitHub:
+```bash
+rm -rf node_modules/.cache/gh-pages
+./deploy.sh
+```
+**Root cause**: The gh-pages npm package caches the repository locally. If this cache gets corrupted or stale, deployments appear to succeed but don't push to GitHub. Clearing the cache forces a fresh deployment.
+
 **If deployment fails with "branch already exists" error:**
 ```bash
 rm -rf node_modules/.cache/gh-pages
 ./deploy.sh
 ```
 
-**If PDFs aren't updating on live site:**
+**If PDFs still aren't updating after cache clear:**
 - GitHub Pages may cache static files for several minutes
-- Verify hashes using the verification step above
+- Verify hashes using the verification step above  
 - Wait 5-10 minutes and check again
-- GitHub Pages cache can take time to invalidate
+- GitHub Pages CDN cache can take time to invalidate
 
 **If build fails:**
 ```bash
