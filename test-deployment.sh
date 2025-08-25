@@ -95,7 +95,8 @@ LIVE_URL="https://iansebas.github.io/pdfs/${TEST_PDF}"
 echo ">>> Testing URL: ${LIVE_URL}"
 
 # Download and verify
-if curl -s --fail "${LIVE_URL}" > "/tmp/${TEST_PDF}"; then
+HTTP_CODE=$(curl -s -w "%{http_code}" "${LIVE_URL}" -o "/tmp/${TEST_PDF}")
+if [ "${HTTP_CODE}" = "200" ]; then
     LIVE_HASH=$(shasum "/tmp/${TEST_PDF}" | cut -d' ' -f1)
     echo ">>> Live PDF hash: ${LIVE_HASH}"
     
@@ -126,6 +127,7 @@ else
 =========================
 - Test PDF not accessible on live site
 - URL: ${LIVE_URL}
+- HTTP Code: ${HTTP_CODE}
 - This indicates deployment didn't work
 "
     TEST_RESULT="FAILED"
