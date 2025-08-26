@@ -41,15 +41,6 @@ When the user says "deploy", run the following command:
 2. Resume page works: https://iansebas.github.io/resume/
 3. PDF files in public/pdfs/ are accessible at: https://iansebas.github.io/pdfs/filename.pdf
 4. Test PDF verification: https://iansebas.github.io/pdfs/test-claude.pdf (should contain "i am claude")
-5. Example: https://iansebas.github.io/pdfs/wanderings.pdf
-6. **CRITICAL**: Verify PDF hashes match:
-   ```bash
-   # Local hash
-   shasum public/pdfs/wanderings.pdf
-   # Live hash  
-   curl -s https://iansebas.github.io/pdfs/wanderings.pdf | shasum
-   ```
-   Expected: f71733435bf896386b92e2a829052df3fb5ad0e3
 
 ## Troubleshooting Deployment Issues
 
@@ -114,7 +105,7 @@ This script:
 **DEPLOYMENT VERIFICATION EVIDENCE:**
 - Working method identified from commit 1916455 analysis (deployment 23)
 - Test deployment verified Aug 25, 2025 with automated testing
-- PDFs confirmed accessible: wanderings.pdf, test-claude.pdf  
+- PDFs confirmed accessible: test-claude.pdf  
 - Live branch contains current content with correct file hashes
 - Automated test script validates deployment reliability
 - Claude has full permissions to modify any aspect of this codebase

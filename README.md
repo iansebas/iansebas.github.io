@@ -84,7 +84,7 @@ rm -rf node_modules/.cache/gh-pages
 **DEPLOYMENT HISTORY & EVIDENCE:**
 - Working method identified from commit 1916455 (deployment 23)
 - Test verification completed Aug 25, 2025
-- PDFs successfully deployed: wanderings.pdf, test-claude.pdf
+- PDFs successfully deployed: test-claude.pdf
 - Branch target: `live` (confirmed via git ls-remote origin)
 
 ## Folder Structure

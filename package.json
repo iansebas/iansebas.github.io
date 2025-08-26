@@ -18,7 +18,7 @@
     "_VERIFICATION": "https://iansebas.github.io/pdfs/test-claude.pdf contains 'i am claude'",
     "_SCRIPTS_NOTE": "npm run deploy/deploy:ci may not work reliably - use ./deploy.sh",
     "_GITHUB_PAGES_SERVES_FROM": "live branch",
-    "_PDF_HASHES": "wanderings.pdf: f71733435bf896386b92e2a829052df3fb5ad0e3, test-claude.pdf: bd5d849989f40cf277f21e9e462c7f84cced601a"
+    "_PDF_HASHES": "test-claude.pdf: bd5d849989f40cf277f21e9e462c7f84cced601a"
   },
   "dependencies": {
     "classnames": "^2.5.1",

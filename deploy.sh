@@ -15,7 +15,6 @@ set -e
 # 
 # Evidence of working deployment:
 # - Test PDF deployed successfully (592 bytes, contains "i am claude")
-# - wanderings.pdf hash: f71733435bf896386b92e2a829052df3fb5ad0e3
 # - Live branch updated: Aug 25, 2025 at 03:00:39
 # 
 # CRITICAL: Git pack corruption errors may appear but deployment often succeeds
