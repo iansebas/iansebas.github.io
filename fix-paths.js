@@ -46,7 +46,9 @@ htmlFiles.forEach(filePath => {
   console.log(`Fixed paths in ${filePath}`);
 });
 
-// Create proper HTTP redirect using Jekyll front matter
+// Create proper HTTP redirect by fetching the actual PDF and saving it locally
+const https = require('https');
+
 const pdfDirPath = './out/pdfs';
 const pdfRedirectPath = './out/pdfs/wanderings.pdf';
 
@@ -55,27 +57,36 @@ if (!fs.existsSync(pdfDirPath)) {
   fs.mkdirSync(pdfDirPath, { recursive: true });
 }
 
-// Create Jekyll redirect page
-const pdfRedirectContent = `---
-redirect_to: https://www.unrulyabstractions.com/pdfs/wanderings.pdf
-permalink: /pdfs/wanderings.pdf
----`;
+// Download the actual PDF file and save it locally
+function downloadPDF() {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(pdfRedirectPath);
+    const request = https.get('https://www.unrulyabstractions.com/pdfs/wanderings.pdf', (response) => {
+      if (response.statusCode === 200) {
+        response.pipe(file);
+        file.on('finish', () => {
+          file.close();
+          console.log('Downloaded PDF to ' + pdfRedirectPath);
+          resolve();
+        });
+      } else {
+        reject(new Error(`HTTP ${response.statusCode}`));
+      }
+    });
+    
+    request.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
 
-fs.writeFileSync(pdfRedirectPath, pdfRedirectContent);
-console.log('Created Jekyll redirect at ' + pdfRedirectPath);
-
-// Also create _config.yml to enable Jekyll redirects
-const configPath = './out/_config.yml';
-const configContent = `plugins:
-  - jekyll-redirect-from
-
-defaults:
-  - scope:
-      path: ""
-    values:
-      layout: null`;
-
-fs.writeFileSync(configPath, configContent);
-console.log('Created Jekyll config at ' + configPath);
+// Download the PDF synchronously
+try {
+  const child_process = require('child_process');
+  child_process.execSync(`curl -s -o "${pdfRedirectPath}" "https://www.unrulyabstractions.com/pdfs/wanderings.pdf"`);
+  console.log('Downloaded PDF to ' + pdfRedirectPath);
+} catch (error) {
+  console.error('Failed to download PDF:', error.message);
+}
 
 console.log('Finished fixing paths for GitHub Pages');
