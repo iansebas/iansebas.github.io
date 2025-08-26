@@ -61,7 +61,7 @@ const RandomHeadshot = () => {
 const navItems = [
   { name: 'about', path: '/about' },
   { name: 'work', path: '/work' },
-  { name: 'writing', path: '/unruly.html' },
+  { name: 'writing', path: 'https://www.unrulyabstractions.com' },
   { name: 'contact', path: '/contact' },
 ];
 
@@ -145,8 +145,11 @@ const Sidebar = () => {
             <ul className="space-y-6 w-full">
               {navItems.map((item) => (
                 <li key={item.name}>
-                  <Link href={item.path} passHref>
-                    <div 
+                  {item.path.startsWith('http') ? (
+                    <a 
+                      href={item.path} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
                       className="group relative text-lg font-medium text-white text-shadow transition-colors duration-300 hover:text-accent flex justify-center"
                       onClick={() => setIsOpen(false)}
                     >
@@ -156,8 +159,22 @@ const Sidebar = () => {
                         initial={false}
                         transition={{ duration: 0.3 }}
                       />
-                    </div>
-                  </Link>
+                    </a>
+                  ) : (
+                    <Link href={item.path} passHref>
+                      <div 
+                        className="group relative text-lg font-medium text-white text-shadow transition-colors duration-300 hover:text-accent flex justify-center"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.name}
+                        <motion.div 
+                          className="absolute -bottom-1 left-0 h-0.5 w-0 bg-white transition-all group-hover:w-full"
+                          initial={false}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

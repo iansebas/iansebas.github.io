@@ -143,11 +143,6 @@ echo ">>> IMPORTANT: Git errors above don't necessarily mean deployment failed!"
 echo ">>> Verifying deployment success on live site..."
 echo ">>> Check these URLs after deployment:"
 echo "    - Main site: https://iansebas.github.io/"
-echo "    - Test PDF: https://iansebas.github.io/pdfs/test-claude.pdf"
-echo "    - Main PDF: https://iansebas.github.io/pdfs/wanderings.pdf"
-echo ">>> Expected PDF hashes:"
-echo "    - wanderings.pdf: f71733435bf896386b92e2a829052df3fb5ad0e3"
-echo "    - test-claude.pdf: bd5d849989f40cf277f21e9e462c7f84cced601a"
 
 # Cleanup
 echo "
