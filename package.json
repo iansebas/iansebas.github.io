@@ -5,7 +5,7 @@
   "homepage": "https://iansebas.github.io",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node fix-paths.js && touch out/.nojekyll",
+    "build": "next build && node fix-paths.js",
     "start": "next start",
     "lint": "next lint",
     "deploy": "gh-pages -d out",

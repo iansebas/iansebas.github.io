@@ -93,7 +93,7 @@ echo "
 ##############################################################################
 "
 echo ">>> Running build process (includes export)..."
-npm run build
+npm run build && rm -f out/.nojekyll
 echo "✅ Build completed successfully."
 
 # Deploy
