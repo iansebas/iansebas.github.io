@@ -13,6 +13,15 @@ const nextConfig = {
   },
   // For GitHub Pages deployment
   basePath: '',
+  async redirects() {
+    return [
+      {
+        source: '/pdfs/:path*',
+        destination: 'https://www.unrulyabstractions.com/pdfs/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
