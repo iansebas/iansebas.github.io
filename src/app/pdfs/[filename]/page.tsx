@@ -1,8 +1,3 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useParams } from 'next/navigation';
-
 export async function generateStaticParams() {
   // Generate static params for known PDF files
   return [
@@ -11,18 +6,11 @@ export async function generateStaticParams() {
   ];
 }
 
-export default function PDFFileRedirect() {
-  const params = useParams();
-  
-  useEffect(() => {
-    const filename = params.filename || '';
-    const redirectUrl = `https://www.unrulyabstractions.com/pdfs/${filename}`;
-    
-    // Immediate redirect
-    window.location.href = redirectUrl;
-  }, [params.filename]);
+interface Props {
+  params: { filename: string };
+}
 
-  // Fallback HTML meta redirect and message
+export default function PDFFileRedirect({ params }: Props) {
   const filename = params.filename || '';
   const redirectUrl = `https://www.unrulyabstractions.com/pdfs/${filename}`;
 
@@ -31,6 +19,11 @@ export default function PDFFileRedirect() {
       <head>
         <meta httpEquiv="refresh" content={`0; url=${redirectUrl}`} />
         <title>Redirecting...</title>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.location.href = '${redirectUrl}';`,
+          }}
+        />
       </head>
       <body>
         <div style={{ 
