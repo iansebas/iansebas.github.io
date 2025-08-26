@@ -51,11 +51,11 @@ const pdfRedirectPath = './out/pdfs/wanderings.pdf';
 const pdfRedirectContent = `<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="refresh" content="0; URL=https://www.unrulyabstractions.com/pdf/wanderings.pdf">
-  <script>window.location.replace('https://www.unrulyabstractions.com/pdf/wanderings.pdf');</script>
+  <meta http-equiv="refresh" content="0; URL=https://www.unrulyabstractions.com/pdfs/wanderings.pdf">
+  <script>window.location.replace('https://www.unrulyabstractions.com/pdfs/wanderings.pdf');</script>
 </head>
 <body>
-  <a href="https://www.unrulyabstractions.com/pdf/wanderings.pdf">Redirecting...</a>
+  <a href="https://www.unrulyabstractions.com/pdfs/wanderings.pdf">Redirecting...</a>
 </body>
 </html>`;
 
