@@ -19,26 +19,31 @@ export default function PDFFileRedirect({ params }: Props) {
       <head>
         <meta httpEquiv="refresh" content={`0; url=${redirectUrl}`} />
         <title>Redirecting...</title>
+        <style>{`
+          body { 
+            margin: 0; 
+            padding: 0; 
+            background: #000; 
+            color: #fff; 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+          }
+        `}</style>
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.location.href = '${redirectUrl}';`,
+            __html: `
+              // Immediate redirect with no delay
+              window.location.replace('${redirectUrl}');
+            `,
           }}
         />
       </head>
       <body>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          height: '100vh',
-          fontFamily: 'Arial, sans-serif' 
-        }}>
+        <div>
           <h1>Redirecting...</h1>
-          <p>If you are not redirected automatically, please click the link below:</p>
-          <a href={redirectUrl} style={{ color: '#0070f3', textDecoration: 'underline' }}>
-            {redirectUrl}
-          </a>
         </div>
       </body>
     </html>
