@@ -46,17 +46,36 @@ htmlFiles.forEach(filePath => {
   console.log(`Fixed paths in ${filePath}`);
 });
 
-// Create PDF redirect file
+// Create proper HTTP redirect using Jekyll front matter
+const pdfDirPath = './out/pdfs';
 const pdfRedirectPath = './out/pdfs/wanderings.pdf';
-const pdfRedirectContent = `<script>window.location='https://www.unrulyabstractions.com/pdfs/wanderings.pdf'</script><meta http-equiv="refresh" content="0;url=https://www.unrulyabstractions.com/pdfs/wanderings.pdf"><a href="https://www.unrulyabstractions.com/pdfs/wanderings.pdf">Click here</a>`;
 
 // Ensure the pdfs directory exists
-const pdfDir = path.dirname(pdfRedirectPath);
-if (!fs.existsSync(pdfDir)) {
-  fs.mkdirSync(pdfDir, { recursive: true });
+if (!fs.existsSync(pdfDirPath)) {
+  fs.mkdirSync(pdfDirPath, { recursive: true });
 }
 
+// Create Jekyll redirect page
+const pdfRedirectContent = `---
+redirect_to: https://www.unrulyabstractions.com/pdfs/wanderings.pdf
+permalink: /pdfs/wanderings.pdf
+---`;
+
 fs.writeFileSync(pdfRedirectPath, pdfRedirectContent);
-console.log('Created PDF redirect at ' + pdfRedirectPath);
+console.log('Created Jekyll redirect at ' + pdfRedirectPath);
+
+// Also create _config.yml to enable Jekyll redirects
+const configPath = './out/_config.yml';
+const configContent = `plugins:
+  - jekyll-redirect-from
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: null`;
+
+fs.writeFileSync(configPath, configContent);
+console.log('Created Jekyll config at ' + configPath);
 
 console.log('Finished fixing paths for GitHub Pages');
