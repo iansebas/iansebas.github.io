@@ -46,4 +46,26 @@ htmlFiles.forEach(filePath => {
   console.log(`Fixed paths in ${filePath}`);
 });
 
+// Create PDF redirect file
+const pdfRedirectPath = './out/pdfs/wanderings.pdf';
+const pdfRedirectContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; URL=https://www.unrulyabstractions.com/pdf/wanderings.pdf">
+  <script>window.location.replace('https://www.unrulyabstractions.com/pdf/wanderings.pdf');</script>
+</head>
+<body>
+  <a href="https://www.unrulyabstractions.com/pdf/wanderings.pdf">Redirecting...</a>
+</body>
+</html>`;
+
+// Ensure the pdfs directory exists
+const pdfDir = path.dirname(pdfRedirectPath);
+if (!fs.existsSync(pdfDir)) {
+  fs.mkdirSync(pdfDir, { recursive: true });
+}
+
+fs.writeFileSync(pdfRedirectPath, pdfRedirectContent);
+console.log('Created PDF redirect at ' + pdfRedirectPath);
+
 console.log('Finished fixing paths for GitHub Pages');
