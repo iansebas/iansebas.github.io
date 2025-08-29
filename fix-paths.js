@@ -46,47 +46,52 @@ htmlFiles.forEach(filePath => {
   console.log(`Fixed paths in ${filePath}`);
 });
 
-// Create proper HTTP redirect by fetching the actual PDF and saving it locally
-const https = require('https');
+// Ensure /pdfs/wanderings.pdf redirects to external URL via 404 handler
+// Strategy: do NOT publish the file locally so the request 404s, then
+// inject a small script into out/404.html that performs a client-side redirect.
 
-const pdfDirPath = './out/pdfs';
 const pdfRedirectPath = './out/pdfs/wanderings.pdf';
 
-// Ensure the pdfs directory exists
-if (!fs.existsSync(pdfDirPath)) {
-  fs.mkdirSync(pdfDirPath, { recursive: true });
-}
-
-// Download the actual PDF file and save it locally
-function downloadPDF() {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(pdfRedirectPath);
-    const request = https.get('https://www.unrulyabstractions.com/pdfs/wanderings.pdf', (response) => {
-      if (response.statusCode === 200) {
-        response.pipe(file);
-        file.on('finish', () => {
-          file.close();
-          console.log('Downloaded PDF to ' + pdfRedirectPath);
-          resolve();
-        });
-      } else {
-        reject(new Error(`HTTP ${response.statusCode}`));
-      }
-    });
-    
-    request.on('error', (err) => {
-      reject(err);
-    });
-  });
-}
-
-// Download the PDF synchronously
+// If a previous build created the file, remove it so the request 404s
 try {
-  const child_process = require('child_process');
-  child_process.execSync(`curl -s -o "${pdfRedirectPath}" "https://www.unrulyabstractions.com/pdfs/wanderings.pdf"`);
-  console.log('Downloaded PDF to ' + pdfRedirectPath);
-} catch (error) {
-  console.error('Failed to download PDF:', error.message);
+  if (fs.existsSync(pdfRedirectPath)) {
+    fs.unlinkSync(pdfRedirectPath);
+    console.log(`Removed local PDF to enable redirect: ${pdfRedirectPath}`);
+  }
+} catch (err) {
+  console.warn(`Warning removing ${pdfRedirectPath}: ${err.message}`);
 }
 
-console.log('Finished fixing paths for GitHub Pages');
+// Inject redirect logic into the generated 404.html
+const notFoundPath = './out/404.html';
+try {
+  if (fs.existsSync(notFoundPath)) {
+    let notFoundHtml = fs.readFileSync(notFoundPath, 'utf8');
+
+    const marker = '<!-- REDIRECT_INJECTED -->';
+    if (!notFoundHtml.includes(marker)) {
+      const redirectSnippet = `\n    ${marker}\n    <script>(function(){\n      try {\n        var p = (location.pathname || '').replace(/\\/+$/, '');\n        if (p === '/pdfs/wanderings.pdf') {\n          location.replace('https://www.unrulyabstractions.com/pdfs/wanderings.pdf');\n        }\n      } catch(e) {}\n    })();<\/script>\n`;
+
+      // Prefer to insert early in <head> to run ASAP
+      if (notFoundHtml.includes('<head>')) {
+        notFoundHtml = notFoundHtml.replace('<head>', '<head>' + redirectSnippet);
+      } else if (notFoundHtml.includes('</head>')) {
+        notFoundHtml = notFoundHtml.replace('</head>', redirectSnippet + '</head>');
+      } else {
+        // Fallback: prepend to file
+        notFoundHtml = redirectSnippet + notFoundHtml;
+      }
+
+      fs.writeFileSync(notFoundPath, notFoundHtml);
+      console.log('Injected redirect into 404.html');
+    } else {
+      console.log('Redirect already injected into 404.html');
+    }
+  } else {
+    console.warn('404.html not found in out directory; cannot inject redirect');
+  }
+} catch (err) {
+  console.error('Failed to inject 404 redirect:', err.message);
+}
+
+console.log('Finished fixing paths and redirect setup for GitHub Pages');
