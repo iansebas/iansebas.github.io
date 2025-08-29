@@ -3,8 +3,9 @@
     <script>(function(){
       try {
         var p = (location.pathname || '').replace(//+$/, '');
-        if (p === '/pdfs/wanderings.pdf') {
-          location.replace('https://www.unrulyabstractions.com/pdfs/wanderings.pdf');
+        if (/^/pdfs/[^?#]+.pdf$/i.test(p)) {
+          var target = 'https://www.unrulyabstractions.com' + p + (location.search || '') + (location.hash || '');
+          location.replace(target);
         }
       } catch(e) {}
     })();</script>
@@ -16,6 +17,18 @@
         var p = (location.pathname || '').replace(//+$/, '');
         if (p === '/pdfs/wanderings.pdf') {
           location.replace('https://www.unrulyabstractions.com/pdfs/wanderings.pdf');
+        }
+      } catch(e) {}
+    })();</script>
+
+
+    <!-- REDIRECT_INJECTED -->
+    <script>(function(){
+      try {
+        var p = (location.pathname || '').replace(//+$/, '');
+        if (/^/pdfs/[^?#]+.pdf$/i.test(p)) {
+          var target = 'https://www.unrulyabstractions.com' + p + (location.search || '') + (location.hash || '');
+          location.replace(target);
         }
       } catch(e) {}
     })();</script>
