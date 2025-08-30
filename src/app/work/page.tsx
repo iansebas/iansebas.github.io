@@ -7,6 +7,15 @@ import Image from 'next/image';
 export default function Work() {
   const workItems = [
     {
+      company: "Unruly Abstractions",
+      imageUrl: "/logo-unruly-abstractions.png",
+      imageWidth: 150,
+      imageHeight: 55,
+      role: "Independent Researcher",
+      acquisition: "",
+      description: "Read my work at unrulyabstractions.com"
+    },
+    {
       company: "Niantic Labs",
       imageUrl: "https://upload.wikimedia.org/wikipedia/en/e/e5/Niantic_Logo_2020.png",
       imageWidth: 150,
@@ -177,8 +186,15 @@ export default function Work() {
 
   // Function to format title into parts
   const formatTitle = (title: string) => {
+    // For Unruly Abstractions
+    if (title.includes('Unruly Abstractions')) {
+      const company = 'Unruly Abstractions';
+      const role = 'Independent Researcher';
+      const acquisition = '';
+      return { company, role, acquisition };
+    }
     // For Niantic
-    if (title.includes('Niantic Labs')) {
+    else if (title.includes('Niantic Labs')) {
       const company = 'Niantic';
       const role = 'Computer Vision';
       const acquisition = 'Acquired by Scopely';
@@ -247,6 +263,30 @@ export default function Work() {
               className="work-card glass-card max-w-3xl mx-auto mb-16 last:mb-16 opacity-70 hover:opacity-100 transition-opacity"
               style={{ scrollMarginTop: '100px', scrollMarginBottom: '100px' }}
             >
+              {item.company === "Unruly Abstractions" && (
+                <div className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="relative w-48 h-52 flex-shrink-0">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.company}
+                      fill
+                      className="object-contain object-left"
+                      priority={index === 0}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                    />
+                  </div>
+                  <div className="flex-grow text-center md:text-left">
+                    <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
+                    {item.acquisition && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    )}
+                    <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
+                      Read my work at <a href="https://unrulyabstractions.com" className="text-white hover:text-blue-200 underline" target="_blank" rel="noopener noreferrer">unrulyabstractions.com</a>
+                    </p>
+                  </div>
+                </div>
+              )}
+              
               {item.company === "Niantic Labs" && (
                 <div className="flex flex-col md:flex-row items-center gap-4">
                   <div className="relative w-48 h-52 flex-shrink-0">

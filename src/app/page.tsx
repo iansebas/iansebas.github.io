@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import classNames from 'classnames';
 
 const tags = [
+  "ai safety",
   "computer vision",
+  "interpretability",
   "self-driving cars",
+  "independent research",
   "augmented reality",
-  "artificial intelligence"
 ];
 
 export default function HomePage() {

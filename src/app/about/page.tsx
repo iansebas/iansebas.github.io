@@ -39,31 +39,26 @@ export default function AboutPage() {
             Curiosity pulls me in. Impact keeps me grounded.
           </p>
           <p className="text-lg mb-6 text-white text-shadow leading-relaxed tracking-wide">
-            I am a technologist who moves through opacity, not around it. From{' '}
-            <span className="font-semibold">self-driving cars</span> to{' '}
-            <span className="font-semibold">augmented reality</span>, I build toward possibilities not yet fully seen but already taking shape.
+            I move through opacity, not around it. 
           </p>
-          <p className="text-lg mb-8 text-white text-shadow leading-relaxed tracking-wide">
-            Let's have fun creating the future together.
-          </p>
-
           <div className="mt-8 space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-white mb-4">things i have enjoyed doing:</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">currently interests:</h2>
+              <ul className="list-disc list-inside space-y-2 text-white">
+                <li>interpretability foundations</li>
+                <li>applied category theory</li>
+                <li>what are features, really?</li>
+                <li>queering ai</li>
+              </ul>
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-4">past interests:</h2>
               <ul className="list-disc list-inside space-y-2 text-white">
                 <li>productizing cutting-edge research technology</li>
-                <li>building complex ai engineering systems</li>
-                <li>leading and growing people</li>
+                <li>building production ai engineering systems (on edge)</li>
               </ul>
             </div>
 
-            <div>
-              <h2 className="text-xl font-semibold text-white mb-4">things i want to do more of:</h2>
-              <ul className="list-disc list-inside space-y-2 text-white">
-                <li>ai interpretability + alignment</li>
-                <li>new foundation models</li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
