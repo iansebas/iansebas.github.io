@@ -26,7 +26,7 @@ export default function BackgroundManager() {
           priority
           quality={95}
           sizes="100vw"
-          className="object-cover"
+          className="object-cover blur-sm"
           style={{
             transform: 'translate3d(0, 0, 0)',
             WebkitBackfaceVisibility: 'hidden',

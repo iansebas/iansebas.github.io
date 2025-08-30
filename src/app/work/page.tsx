@@ -12,7 +12,7 @@ export default function Work() {
       imageWidth: 150,
       imageHeight: 55,
       role: "Independent Researcher",
-      acquisition: "",
+      years: "2025 - present",
       description: "Read my work at unrulyabstractions.com"
     },
     {
@@ -21,7 +21,7 @@ export default function Work() {
       imageWidth: 150,
       imageHeight: 55,
       role: "Computer Vision",
-      acquisition: "Acquired by Scopely",
+      years: "2019 - 2024",
       description: "For half a decade, I led the productization of cutting-edge research by gaining in-depth technical expertise, expanding the technology, integrating it with real use cases in mind, and planning a roadmap for its technical improvement based on cross-collaboration with product, UX, and research. My work successfully launched augmented reality features in Pokémon Go for millions of users, multiple third-party games through our AR SDK, and various spatial computing enterprise projects."
     },
     {
@@ -30,7 +30,7 @@ export default function Work() {
       imageWidth: 130,
       imageHeight: 45,
       role: "Computer Vision",
-      acquisition: "Acquired by Niantic Labs",
+      years: "2017 - 2019",
       description: "As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with Oxford University's Active Vision Lab to create one of the world's first SDKs for real-time 3D reconstruction and Persistent Augmented Reality."
     },
     {
@@ -39,7 +39,7 @@ export default function Work() {
       imageWidth: 110,
       imageHeight: 45,
       role: "Research Engineering",
-      acquisition: "Acquired by Luminar",
+      years: "2015 - 2017",
       description: "I started my career in the Self-Driving Car industry, creating city-scale, high-accuracy 3D Maps for autonomous vehicles"
     },
     {
@@ -48,7 +48,7 @@ export default function Work() {
       imageWidth: 140,
       imageHeight: 45,
       role: "Limited Partner",
-      acquisition: "",
+      years: "2021 - present",
       description: "Honored to be around the coolest people in tech and media"
     }
   ];
@@ -190,43 +190,43 @@ export default function Work() {
     if (title.includes('Unruly Abstractions')) {
       const company = 'Unruly Abstractions';
       const role = 'Independent Researcher';
-      const acquisition = '';
-      return { company, role, acquisition };
+      const years = '2025 - present';
+      return { company, role, years };
     }
     // For Niantic
     else if (title.includes('Niantic Labs')) {
       const company = 'Niantic';
       const role = 'Computer Vision';
-      const acquisition = 'Acquired by Scopely';
-      return { company, role, acquisition };
+      const years = '2019 - 2024';
+      return { company, role, years };
     }
     // For 6D.AI
     else if (title.includes('6D.AI')) {
       const company = '6D.AI';
       const role = 'Computer Vision';
-      const acquisition = 'Acquired by Niantic Labs';
-      return { company, role, acquisition };
+      const years = '2017 - 2019';
+      return { company, role, years };
     }
     // For Civil Maps
     else if (title.includes('Civil Maps')) {
       const company = 'Civil Maps';
       const role = 'Research Engineering';
-      const acquisition = 'Acquired by Luminar';
-      return { company, role, acquisition };
+      const years = '2015 - 2017';
+      return { company, role, years };
     }
     // For Magic Fund
     else if (title.includes('Magic Fund')) {
       const company = 'Magic Fund';
       const role = 'Limited Partner';
-      const acquisition = '';
-      return { company, role, acquisition };
+      const years = '2021 - present';
+      return { company, role, years };
     }
     // Default fallback
     else {
       return { 
         company: title.split('@')[1]?.trim() || title,
         role: title.split('@')[0]?.trim() || '',
-        acquisition: ''
+        years: ''
       };
     }
   };
@@ -277,8 +277,8 @@ export default function Work() {
                   </div>
                   <div className="flex-grow text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
-                    {item.acquisition && (
-                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    {item.years && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.years}</p>
                     )}
                     <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
                       Read my work at <a href="https://unrulyabstractions.com" className="text-white hover:text-blue-200 underline" target="_blank" rel="noopener noreferrer">unrulyabstractions.com</a>
@@ -301,8 +301,8 @@ export default function Work() {
                   </div>
                   <div className="flex-grow text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
-                    {item.acquisition && (
-                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    {item.years && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.years}</p>
                     )}
                     <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
                       For half a decade, I led the <strong className="text-white">productization of cutting-edge research</strong> by gaining in-depth technical expertise, expanding the technology, integrating it with real use cases in mind, and planning a roadmap for its technical improvement based on cross-collaboration with product, UX, and research. My work successfully launched <strong className="text-white">augmented reality features in Pokémon Go for millions of users</strong>, multiple third-party games through our AR SDK, and various <strong className="text-white">spatial computing</strong> enterprise projects.
@@ -324,8 +324,8 @@ export default function Work() {
                   </div>
                   <div className="w-full text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
-                    {item.acquisition && (
-                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    {item.years && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.years}</p>
                     )}
                     <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
                       As the fourth employee, I enjoyed wearing many hats and moving fast. I worked closely with <strong className="text-white">Oxford University's Active Vision Lab</strong> to create one of the world's first SDKs for real-time 3D reconstruction and Persistent Augmented Reality.
@@ -347,8 +347,8 @@ export default function Work() {
                   </div>
                   <div className="flex-grow text-center md:text-right">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
-                    {item.acquisition && (
-                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    {item.years && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.years}</p>
                     )}
                     <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">
                       I started my career in the Self-Driving Car industry, creating city-scale, high-accuracy <strong className="text-white">3D Maps for autonomous vehicles</strong>
@@ -370,8 +370,8 @@ export default function Work() {
                   </div>
                   <div className="flex-grow text-center md:text-left">
                     <h3 className="text-2xl font-medium text-white/90 text-shadow">{item.role}</h3>
-                    {item.acquisition && (
-                      <p className="text-sm font-light text-white/80 italic mt-1">{item.acquisition}</p>
+                    {item.years && (
+                      <p className="text-sm font-light text-white/80 italic mt-1">{item.years}</p>
                     )}
                     <p className="text-base text-white/90 text-shadow leading-relaxed mt-2">{item.description}</p>
                   </div>
