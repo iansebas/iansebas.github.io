@@ -260,7 +260,7 @@ export default function Work() {
           {workItems.map((item, index) => (
             <div 
               key={index}
-              className="work-card glass-card max-w-3xl mx-auto mb-16 last:mb-16 opacity-70 hover:opacity-100 transition-opacity"
+              className="work-card glass-card max-w-3xl mx-auto mb-16 last:mb-16 opacity-70 hover:opacity-100 transition-opacity duration-150"
               style={{ scrollMarginTop: '100px', scrollMarginBottom: '100px' }}
             >
               {item.company === "Unruly Abstractions" && (

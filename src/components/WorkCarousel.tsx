@@ -69,7 +69,7 @@ const WorkCarousel = ({ items, onItemChange }: WorkCarouselProps) => {
             <div
               key={index}
               className={classNames(
-                "h-2 w-2 rounded-full transition-all duration-300",
+                "h-2 w-2 rounded-full transition-all duration-150",
                 index === currentIndex ? "bg-white" : "bg-white/30"
               )}
             />

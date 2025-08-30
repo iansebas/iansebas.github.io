@@ -51,7 +51,7 @@ const RandomHeadshot = () => {
       <img 
         src={headshot}
         alt="ian rios" 
-        className={`object-cover w-full h-full transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`object-cover w-full h-full transition-opacity duration-150 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setIsLoaded(true)}
       />
     </div>
@@ -107,7 +107,7 @@ const Sidebar = () => {
 
       {/* Sidebar for desktop */}
       <div className={classNames(
-        "fixed top-0 left-0 h-full w-64 z-40 transition-transform duration-300 ease-in-out backdrop-blur-sm",
+        "fixed top-0 left-0 h-full w-64 z-40 transition-transform duration-200 ease-in-out backdrop-blur-sm",
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       )}>
         <div className="flex flex-col h-full px-8 py-10">
@@ -150,27 +150,27 @@ const Sidebar = () => {
                       href={item.path} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="group relative text-lg font-medium text-white text-shadow transition-colors duration-300 hover:text-accent flex justify-center"
+                      className="group relative text-lg font-medium text-white text-shadow transition-colors duration-150 hover:text-accent flex justify-center"
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}
                       <motion.div 
                         className="absolute -bottom-1 left-0 h-0.5 w-0 bg-white transition-all group-hover:w-full"
                         initial={false}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.15 }}
                       />
                     </a>
                   ) : (
                     <Link href={item.path} passHref>
                       <div 
-                        className="group relative text-lg font-medium text-white text-shadow transition-colors duration-300 hover:text-accent flex justify-center"
+                        className="group relative text-lg font-medium text-white text-shadow transition-colors duration-150 hover:text-accent flex justify-center"
                         onClick={() => setIsOpen(false)}
                       >
                         {item.name}
                         <motion.div 
                           className="absolute -bottom-1 left-0 h-0.5 w-0 bg-white transition-all group-hover:w-full"
                           initial={false}
-                          transition={{ duration: 0.3 }}
+                          transition={{ duration: 0.15 }}
                         />
                       </div>
                     </Link>

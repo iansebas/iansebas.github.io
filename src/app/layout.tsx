@@ -42,7 +42,7 @@ export default function RootLayout({
           <div className="fixed inset-0 -z-10 bg-black/40" />
           
           <Sidebar />
-          <main className="flex-1 p-4 md:p-8 md:ml-64 transition-all duration-300 ease-in-out">
+          <main className="flex-1 p-4 md:p-8 md:ml-64 transition-all duration-200 ease-in-out">
             {children}
           </main>
         </div>

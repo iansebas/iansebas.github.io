@@ -37,7 +37,7 @@ export default function Contact() {
         {/* Resume Link */}
         <a 
           href="/resume"
-          className="transition-all duration-300 hover:transform hover:scale-110"
+          className="transition-all duration-100 hover:transform hover:scale-110"
         >
           <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">resume</h2>
         </a>
@@ -45,7 +45,7 @@ export default function Contact() {
         {/* Email Link */}
         <a 
           href="mailto:iansebas@umich.edu"
-          className="transition-all duration-300 hover:transform hover:scale-110"
+          className="transition-all duration-100 hover:transform hover:scale-110"
         >
           <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">email</h2>
         </a>
@@ -55,7 +55,7 @@ export default function Contact() {
           href="https://www.linkedin.com/in/iansebas/"
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-all duration-300 hover:transform hover:scale-110"
+          className="transition-all duration-100 hover:transform hover:scale-110"
         >
           <h2 className="text-4xl md:text-6xl font-bold text-white text-shadow tracking-wide">linkedin</h2>
         </a>

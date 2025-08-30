@@ -23,8 +23,8 @@ export default function HomePage() {
       setTimeout(() => {
         setCurrentTagIndex((prev) => (prev + 1) % tags.length);
         setIsChanging(false);
-      }, 150);
-    }, 3000);
+      }, 300);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
